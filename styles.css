@@ -7,17 +7,751 @@
 /* The custom properties. Change a colour ONCE here and it
    changes everywhere it is used further down. */
 :root {
-  --ink:        #1a1a1a;   /* body text */
-  --muted:      #5a6472;   /* quieter text */
-  --accent:     #0a6373;   /* links and rules — make this yours */
-  --paper:      #ffffff;
-  --line:       #e2e6ec;
-  --measure:    34rem;     /* how wide a line of text gets before it wraps */
+  --ink: #1a1a1a;
+  /* body text */
+  --muted: #6e9fe3;
+  /* quieter text */
+  --accent: #06daff;
+  /* links and rules — make this yours */
+  --paper: #516d96;
+  --line: #fcfcfc;
+  --measure: 34rem;
+  /* how wide a line of text gets before it wraps */
+}
+
+:root {
+  --ink: #f5f7f2;
+  --muted: #a9b6ae;
+  --soft: #d5ded7;
+  --acid: #d7f36b;
+  --coral: #ff846f;
+  --night: #101b1a;
+  --glass: rgba(255, 255, 255, 0.09);
+  --line: rgba(226, 244, 228, 0.18);
+  --shell: min(1120px, calc(100% - 48px));
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--night);
+  color: var(--ink);
+  font: 400 16px/1.6 "Manrope", sans-serif;
+}
+
+body::before {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  content: "";
+  background: radial-gradient(circle at 10% 8%, rgba(83, 150, 120, .22), transparent 32%), radial-gradient(circle at 91% 22%, rgba(255, 132, 111, .13), transparent 25%), linear-gradient(135deg, #0d1817 0%, #17302b 52%, #101c1a 100%);
+}
+
+body::after {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  content: "";
+  opacity: .32;
+  background-image: linear-gradient(rgba(225, 243, 227, .04) 1px, transparent 1px), linear-gradient(90deg, rgba(225, 243, 227, .04) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(to bottom, black, transparent 75%);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.shell {
+  width: var(--shell);
+  margin-inline: auto;
+}
+
+.page-glow {
+  position: absolute;
+  z-index: -1;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: .16;
+  pointer-events: none;
+}
+
+.glow-one {
+  top: 510px;
+  left: -180px;
+  background: var(--acid);
+}
+
+.glow-two {
+  top: 1180px;
+  right: -190px;
+  background: var(--coral);
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 30px;
+}
+
+.brand,
+nav,
+.hero-actions,
+.note-top,
+.note-footer,
+.section-label,
+.section-heading,
+.site-footer {
+  display: flex;
+  align-items: center;
+}
+
+.brand {
+  gap: 11px;
+  font-size: .82rem;
+  font-weight: 700;
+}
+
+.brand-mark {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid rgba(215, 243, 107, .55);
+  border-radius: 50%;
+  color: var(--acid);
+  font: 500 .68rem "DM Mono", monospace;
+}
+
+nav {
+  gap: 31px;
+  color: var(--muted);
+  font-size: .77rem;
+  font-weight: 700;
+}
+
+nav a {
+  transition: color .2s ease;
+}
+
+nav a:hover,
+.text-link:hover,
+.project-link:hover {
+  color: var(--acid);
+}
+
+.nav-contact {
+  padding: 9px 14px;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  color: var(--soft);
+}
+
+.nav-contact span,
+.text-link span,
+.project-link span,
+.button span {
+  margin-left: 6px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 100px;
+  align-items: center;
+  min-height: 620px;
+  padding-top: 56px;
+}
+
+.eyebrow,
+.mono-label,
+.section-label,
+.project-number,
+.art-caption {
+  font: 500 .67rem "DM Mono", monospace;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 21px;
+  color: var(--acid);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--acid);
+  box-shadow: 0 0 0 5px rgba(215, 243, 107, .1);
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 700;
+}
+
+h1 {
+  max-width: 700px;
+  margin-bottom: 25px;
+  font-size: clamp(3.7rem, 8vw, 6.8rem);
+  line-height: .95;
+  letter-spacing: -.075em;
+}
+
+em {
+  color: var(--acid);
+  font-style: normal;
+}
+
+.hero-intro {
+  max-width: 450px;
+  margin-bottom: 31px;
+  color: var(--muted);
+  font-size: .98rem;
+  line-height: 1.8;
+}
+
+.hero-actions {
+  flex-wrap: wrap;
+  gap: 28px;
+}
+
+.button {
+  display: inline-block;
+  border-radius: 100px;
+  padding: 13px 19px;
+  font-size: .77rem;
+  font-weight: 800;
+  transition: transform .2s ease, background .2s ease;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+}
+
+.button-primary {
+  background: var(--acid);
+  color: #1a281e;
+}
+
+.button-primary:hover {
+  background: #efffa6;
+}
+
+.text-link,
+.project-link {
+  color: var(--soft);
+  font-size: .78rem;
+  font-weight: 700;
+  transition: color .2s ease;
+}
+
+.glass-card {
+  border: 1px solid var(--line);
+  background: linear-gradient(145deg, rgba(255, 255, 255, .13), rgba(255, 255, 255, .035));
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .16), inset 0 1px rgba(255, 255, 255, .07);
+  backdrop-filter: blur(18px);
+}
+
+.hero-note {
+  position: relative;
+  min-height: 350px;
+  padding: 22px;
+  overflow: hidden;
+  transform: rotate(3deg);
+  border-radius: 22px;
+  animation: drift 7s ease-in-out infinite;
+}
+
+.note-top,
+.note-footer {
+  justify-content: space-between;
+}
+
+.mono-label,
+.note-footer {
+  color: var(--muted);
+}
+
+.live-pill {
+  padding: 4px 8px;
+  border-radius: 100px;
+  background: rgba(215, 243, 107, .14);
+  color: var(--acid);
+  font: 500 .57rem "DM Mono", monospace;
+}
+
+.note-orbit {
+  position: absolute;
+  top: 75px;
+  left: 50%;
+  width: 230px;
+  height: 110px;
+  border: 1px solid rgba(215, 243, 107, .5);
+  border-radius: 50%;
+  transform: translateX(-50%) rotate(-26deg);
+}
+
+.note-orbit::after {
+  position: absolute;
+  inset: 12px 34px;
+  content: "";
+  border: 1px solid rgba(255, 132, 111, .4);
+  border-radius: 50%;
+}
+
+.note-orbit span {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--acid);
+}
+
+.note-orbit span:first-child {
+  top: 7px;
+  left: 50px;
+}
+
+.note-orbit span:nth-child(2) {
+  right: 26px;
+  bottom: 15px;
+  background: var(--coral);
+}
+
+.note-orbit span:last-child {
+  bottom: 14px;
+  left: 30px;
+  width: 5px;
+  height: 5px;
+  background: white;
+}
+
+.note-title {
+  position: absolute;
+  bottom: 56px;
+  left: 22px;
+  margin: 0;
+  color: var(--soft);
+  font-size: 2.3rem;
+  font-weight: 700;
+  line-height: .98;
+  letter-spacing: -.07em;
+}
+
+.note-footer {
+  position: absolute;
+  right: 22px;
+  bottom: 20px;
+  left: 22px;
+  font-size: .65rem;
+}
+
+.signal-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  padding: 23px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.signal-bar div {
+  display: flex;
+  align-items: baseline;
+  gap: 11px;
+}
+
+.signal-bar strong {
+  color: var(--acid);
+  font-size: 1.5rem;
+  letter-spacing: -.06em;
+}
+
+.signal-bar span {
+  color: var(--muted);
+  font: .62rem "DM Mono", monospace;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.about-section,
+.work-section,
+.contact-section {
+  padding-top: 150px;
+}
+
+.section-label {
+  gap: 12px;
+  color: var(--muted);
+}
+
+.section-label span:first-child {
+  color: var(--acid);
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1.15fr .85fr;
+  gap: 90px;
+  margin-top: 42px;
+}
+
+h2 {
+  margin-bottom: 0;
+  font-size: clamp(2.5rem, 5vw, 4.3rem);
+  line-height: 1.03;
+  letter-spacing: -.07em;
+}
+
+.about-copy {
+  padding-top: 8px;
+  color: var(--muted);
+  font-size: .9rem;
+  line-height: 1.85;
+}
+
+.about-copy p {
+  margin-bottom: 20px;
+}
+
+.section-heading {
+  justify-content: space-between;
+  align-items: end;
+  margin-bottom: 42px;
+}
+
+.section-heading p {
+  max-width: 250px;
+  margin: 0;
+  color: var(--muted);
+  font-size: .78rem;
+  line-height: 1.6;
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: 1.2fr .8fr;
+  gap: 20px;
+}
+
+.project-card {
+  overflow: hidden;
+  border-radius: 18px;
+}
+
+.project-art {
+  position: relative;
+  height: 285px;
+  overflow: hidden;
+}
+
+.vault-art {
+  background: #314d41;
+}
+
+.future-art {
+  background: #28373a;
+}
+
+.art-grid {
+  position: absolute;
+  inset: 0;
+  opacity: .3;
+  background-image: linear-gradient(rgba(215, 243, 107, .25) 1px, transparent 1px), linear-gradient(90deg, rgba(215, 243, 107, .25) 1px, transparent 1px);
+  background-size: 34px 34px;
+  transform: rotate(-12deg) scale(1.3);
+}
+
+.vault-symbol {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: 120px;
+  height: 120px;
+  place-items: center;
+  border: 1px solid rgba(215, 243, 107, .7);
+  border-radius: 50%;
+  color: var(--acid);
+  font-size: 4rem;
+  font-weight: 300;
+  transform: translate(-50%, -50%) rotate(45deg);
+  box-shadow: 0 0 0 20px rgba(215, 243, 107, .035), 0 0 0 40px rgba(215, 243, 107, .025);
+}
+
+.future-art::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 180px;
+  height: 180px;
+  content: "";
+  border: 1px solid rgba(255, 255, 255, .28);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.future-art::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 110px;
+  height: 110px;
+  content: "";
+  border: 1px solid rgba(255, 132, 111, .5);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.future-cross {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  color: var(--coral);
+  font-size: 4rem;
+  font-weight: 200;
+  transform: translate(-50%, -59%);
+}
+
+.cross-two {
+  color: var(--acid);
+  transform: translate(-70%, -35%) rotate(45deg) scale(.55);
+}
+
+.art-caption {
+  position: absolute;
+  right: 19px;
+  bottom: 17px;
+  color: rgba(255, 255, 255, .65);
+  font-size: .56rem;
+}
+
+.project-info {
+  padding: 24px 25px 27px;
+}
+
+.project-number {
+  margin-bottom: 12px;
+  color: var(--acid);
+  font-size: .58rem;
+}
+
+.project-info h3 {
+  margin-bottom: 9px;
+  font-size: 1.55rem;
+  letter-spacing: -.05em;
+}
+
+.project-info p:not(.project-number) {
+  min-height: 50px;
+  margin-bottom: 18px;
+  color: var(--muted);
+  font-size: .8rem;
+  line-height: 1.7;
+}
+
+.contact-section {
+  padding-bottom: 125px;
+}
+
+.contact-panel {
+  position: relative;
+  overflow: hidden;
+  min-height: 390px;
+  padding: 63px 66px;
+  border-radius: 22px;
+}
+
+.contact-panel h2 {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 32px;
+}
+
+.contact-panel .eyebrow {
+  position: relative;
+  z-index: 1;
+}
+
+.contact-orbit {
+  position: absolute;
+  border: 1px solid rgba(215, 243, 107, .38);
+  border-radius: 50%;
+}
+
+.orbit-a {
+  top: -110px;
+  right: -50px;
+  width: 410px;
+  height: 410px;
+}
+
+.orbit-b {
+  top: 4px;
+  right: 68px;
+  width: 180px;
+  height: 180px;
+  border-color: rgba(255, 132, 111, .5);
+}
+
+.site-footer {
+  justify-content: space-between;
+  gap: 20px;
+  padding: 19px 0 28px;
+  border-top: 1px solid var(--line);
+  color: #758b81;
+  font: .59rem "DM Mono", monospace;
+  letter-spacing: .1em;
+}
+
+@keyframes drift {
+
+  0%,
+  100% {
+    transform: rotate(3deg) translateY(0);
+  }
+
+  50% {
+    transform: rotate(1deg) translateY(-8px);
+  }
+}
+
+@media (max-width: 760px) {
+  :root {
+    --shell: min(100% - 36px, 600px);
+  }
+
+  nav {
+    gap: 15px;
+  }
+
+  nav>a:not(.nav-contact) {
+    display: none;
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 52px;
+    min-height: auto;
+    padding-top: 95px;
+    padding-bottom: 85px;
+  }
+
+  h1 {
+    font-size: clamp(3.45rem, 16vw, 5.4rem);
+  }
+
+  .hero-note {
+    width: min(100%, 340px);
+    margin-left: auto;
+  }
+
+  .signal-bar {
+    gap: 10px;
+  }
+
+  .signal-bar div {
+    display: block;
+  }
+
+  .signal-bar strong {
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  .signal-bar span {
+    font-size: .52rem;
+    line-height: 1.25;
+  }
+
+  .about-section,
+  .work-section,
+  .contact-section {
+    padding-top: 100px;
+  }
+
+  .about-grid,
+  .project-grid {
+    grid-template-columns: 1fr;
+    gap: 35px;
+  }
+
+  .about-grid {
+    margin-top: 30px;
+  }
+
+  .section-heading {
+    display: block;
+  }
+
+  .section-heading p {
+    margin-top: 18px;
+  }
+
+  .contact-panel {
+    min-height: 360px;
+    padding: 42px 30px;
+  }
+
+  .site-footer {
+    display: block;
+    line-height: 2;
+  }
+
+  .site-footer span {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 /* A sensible reset. Without border-box, padding makes boxes
    wider than you asked for, and nothing lines up. */
-*, *::before, *::after { box-sizing: border-box; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0 auto;
@@ -52,14 +786,23 @@ h2 {
   color: var(--accent);
 }
 
-ul { margin: 0; padding-left: 1.1rem; }
-li { margin-bottom: 0.6rem; }
+ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+li {
+  margin-bottom: 0.6rem;
+}
 
 a {
   color: var(--accent);
   text-underline-offset: 3px;
 }
-a:hover { text-decoration: none; }
+
+a:hover {
+  text-decoration: none;
+}
 
 footer {
   margin-top: 3.5rem;
@@ -72,6 +815,11 @@ footer {
 /* Someone reading this on a phone is the common case, not the
    edge case. Test it there before you call the page done. */
 @media (max-width: 30rem) {
-  body { padding-top: 2rem; }
-  h1   { font-size: 1.8rem; }
+  body {
+    padding-top: 2rem;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+  }
 }
