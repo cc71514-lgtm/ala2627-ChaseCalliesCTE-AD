@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Low-poly card motion lab</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <main class="page-shell">
+    <header class="masthead">
+      <p class="eyebrow">CSS MOTION STUDY / 01</p>
+      <h1>Card animations,<br><em>faceted.</em></h1>
+      <p class="intro">A flexbox gallery of modern, CSS-only card motion patterns. Hover, focus, or tap a card to
+        activate it.</p>
+      <div class="legend" aria-label="Animation legend">
+        <span><i class="dot dot-cyan"></i> hover states</span>
+        <span><i class="dot dot-coral"></i> keyframes</span>
+        <span><i class="dot dot-lime"></i> 3D transforms</span>
+      </div>
+    </header>
+
+    <section class="card-grid" aria-label="CSS card animation examples">
+      <article class="poly-card lift" tabindex="0">
+        <div class="card-art art-lift" aria-hidden="true"><span class="facet f1"></span><span
+            class="facet f2"></span><span class="facet f3"></span><span class="art-label">01</span></div>
+        <div class="card-copy">
+          <p class="tag">transform / hover</p>
+          <h2>Lift + shadow</h2>
+          <p>Small translate and a deeper shadow make the card feel tangible.</p><code>translateY(-10px)</code>
+        </div>
+      </article>
+
+      <article class="poly-card glow" tabindex="0">
+        <div class="card-art art-glow" aria-hidden="true"><span class="facet f1"></span><span
+            class="facet f2"></span><span class="facet f3"></span><span class="art-label">02</span></div>
+        <div class="card-copy">
+          <p class="tag">pseudo-element / hover</p>
+          <h2>Prism glow</h2>
+          <p>A clipped, blurred gradient sweeps through the facets on focus.</p><code>::before + clip-path</code>
+        </div>
+      </article>
+
+      <article class="poly-card flip" tabindex="0">
+        <div class="flip-inner">
+          <div class="flip-face card-front">
+            <div class="card-art art-flip" aria-hidden="true"><span class="facet f1"></span><span
+                class="facet f2"></span><span class="facet f3"></span><span class="art-label">03</span></div>
+            <div class="card-copy">
+              <p class="tag">perspective / 3D</p>
+              <h2>Flip reveal</h2>
+              <p>Rotate the inner surface to reveal a second state.</p><code>rotateY(180deg)</code>
+            </div>
+          </div>
+          <div class="flip-face card-back"><span class="back-number">03</span>
+            <p class="tag">the reverse side</p>
+            <h2>More detail</h2>
+            <p>The back face can hold a call to action, stats, or a hidden message.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="poly-card float" tabindex="0">
+        <div class="card-art art-float" aria-hidden="true"><span class="facet f1"></span><span
+            class="facet f2"></span><span class="facet f3"></span><span class="art-label">04</span></div>
+        <div class="card-copy">
+          <p class="tag">@keyframes / idle</p>
+          <h2>Soft float</h2>
+          <p>A slow vertical loop adds life without asking for interaction.</p>
+          <code>animation: float 4s ease-in-out</code>
+        </div>
+      </article>
+
+      <article class="poly-card sheen" tabindex="0">
+        <div class="card-art art-sheen" aria-hidden="true"><span class="facet f1"></span><span
+            class="facet f2"></span><span class="facet f3"></span><span class="art-label">05</span></div>
+        <div class="card-copy">
+          <p class="tag">background-position</p>
+          <h2>Moving sheen</h2>
+          <p>A diagonal highlight travels across the surface like polished glass.</p>
+          <code>background-position: 200%</code>
+        </div>
+      </article>
+
+      <article class="poly-card pulse" tabindex="0">
+        <div class="card-art art-pulse" aria-hidden="true"><span class="pulse-ring"></span><span
+            class="facet f1"></span><span class="facet f2"></span><span class="facet f3"></span><span
+            class="art-label">06</span></div>
+        <div class="card-copy">
+          <p class="tag">@keyframes / scale</p>
+          <h2>Signal pulse</h2>
+          <p>Layered scale and opacity suggest an active or live status.</p><code>scale(1.08) + opacity</code>
+        </div>
+      </article>
+
+      <article class="poly-card draw" tabindex="0">
+        <div class="card-art art-draw" aria-hidden="true"><span class="facet f1"></span><span
+            class="facet f2"></span><span class="facet f3"></span><span class="art-label">07</span></div>
+        <div class="card-copy">
+          <p class="tag">border / conic-gradient</p>
+          <h2>Orbit border</h2>
+          <p>A rotating conic gradient creates an animated edge with no SVG.</p><code>conic-gradient() + mask</code>
+        </div>
+      </article>
+
+      <article class="poly-card reveal" tabindex="0">
+        <div class="card-art art-reveal" aria-hidden="true"><span class="facet f1"></span><span
+            class="facet f2"></span><span class="facet f3"></span><span class="art-label">08</span></div>
+        <div class="card-copy">
+          <p class="tag">clip-path / hover</p>
+          <h2>Facet reveal</h2>
+          <p>Angular panels slide apart to uncover a brighter color plane.</p><code>clip-path: polygon()</code>
+        </div>
+      </article>
+    </section>
+
+    <footer><span class="footer-mark">◆</span> CSS only · flexbox · no scripts · <a href="../">back to coursework</a>
+    </footer>
+  </main>
+</body>
+
+</html>
