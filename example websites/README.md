@@ -1,14 +1,12 @@
-# Low-poly card animation lab
+# JDM card motion garage
 
-Open `index.html` in a browser. This is a CSS-only flexbox gallery of card animation patterns:
+Open `index.html` in a browser. This is a CSS-only flexbox gallery of JDM cars with stats and card interactions:
 
 - lift and shadow
 - glow with a pseudo-element
 - 3D flip reveal
 - idle floating motion
-- animated sheen
-- pulse ring
-- conic-gradient orbit border
-- clip-path facet reveal
+- image zoom on hover
+- responsive performance stats
 
 Every card is keyboard-focusable. The stylesheet also includes a mobile layout and a `prefers-reduced-motion` fallback.
