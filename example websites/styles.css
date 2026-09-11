@@ -157,6 +157,21 @@ h1 em {
   clip-path: polygon(0 0, 100% 0, 100% 82%, 82% 100%, 0 88%);
 }
 
+.card-art img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  filter: saturate(.82) contrast(1.08);
+  transition: transform .7s var(--ease), filter .7s var(--ease);
+}
+
+.poly-card:hover .card-art img,
+.poly-card:focus .card-art img {
+  transform: scale(1.08);
+  filter: saturate(1.12) contrast(1.12);
+}
+
 .card-art::before {
   position: absolute;
   inset: -35%;
@@ -218,19 +233,49 @@ h2 {
 }
 
 .card-copy p:not(.tag) {
-  min-height: 50px;
+  min-height: 49px;
   margin: 0 0 20px;
   color: var(--muted);
   font-size: .91rem;
 }
 
-code {
-  display: inline-block;
-  padding: 6px 8px;
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.stats li {
+  min-width: 0;
+  padding-top: 9px;
+  border-top: 1px solid #37434c;
+}
+
+.stats span,
+.stats strong,
+.back-spec {
+  display: block;
+  font-family: 'Space Mono', monospace;
+  text-transform: uppercase;
+}
+
+.stats span {
+  overflow: hidden;
+  color: #83939d;
+  font-size: .56rem;
+  letter-spacing: .04em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stats strong {
+  margin-top: 3px;
   color: var(--lime);
-  border: 1px solid #37483c;
-  background: rgba(0, 0, 0, .2);
-  font-size: .65rem;
+  font-size: .72rem;
+  white-space: nowrap;
 }
 
 .lift:hover,
@@ -312,6 +357,16 @@ code {
 
 .card-back .tag {
   color: var(--lime);
+}
+
+.back-spec {
+  width: fit-content;
+  margin-top: 20px;
+  padding: 7px 9px;
+  color: var(--lime);
+  border: 1px solid #37483c;
+  background: rgba(0, 0, 0, .2);
+  font-size: .62rem;
 }
 
 .back-number {
@@ -517,6 +572,10 @@ footer a {
 
   .card-art {
     height: 180px;
+  }
+
+  .card-copy {
+    padding: 21px 20px 24px;
   }
 
   h1 {
