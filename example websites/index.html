@@ -12,10 +12,17 @@
 <body>
   <main class="page-shell">
     <header class="masthead">
-      <p class="eyebrow">NIGHT RUNNERS / JDM ARCHIVE</p>
+      <div class="topline">
+        <p class="eyebrow">NIGHT RUNNERS / JDM ARCHIVE</p><span class="signal"><i></i> LIVE SIGNAL 08:42</span>
+      </div>
       <h1>Japanese icons,<br><em>unfiltered.</em></h1>
       <p class="intro">Eight street legends, tuned for the midnight run. Explore the stats, then hover, focus, or tap a
         card to wake up its motion.</p>
+      <div class="telemetry" aria-label="Garage telemetry">
+        <div><span>GARAGE STATUS</span><strong>OPEN / 08</strong></div>
+        <div><span>COLLECTION ERA</span><strong>1986 - 1999</strong></div>
+        <div><span>AVG. OUTPUT</span><strong>240 HP</strong></div>
+      </div>
       <div class="legend" aria-label="Garage legend">
         <span><i class="dot dot-cyan"></i> street spec</span>
         <span><i class="dot dot-coral"></i> turbo icons</span>
@@ -23,8 +30,17 @@
       </div>
     </header>
 
+    <div class="garage-nav" aria-label="Filter car collection">
+      <span class="nav-label">SORT BY /</span>
+      <button class="filter-button is-active" type="button" data-filter="all">all icons</button>
+      <button class="filter-button" type="button" data-filter="turbo">turbo icons</button>
+      <button class="filter-button" type="button" data-filter="awd">all-wheel drive</button>
+      <button class="filter-button" type="button" data-filter="lightweight">lightweight</button>
+      <span class="scan-status" aria-live="polite">08 SIGNALS FOUND</span>
+    </div>
+
     <section class="card-grid" aria-label="JDM car collection">
-      <article class="poly-card lift" tabindex="0">
+      <article class="poly-card lift" tabindex="0" data-tags="turbo awd">
         <div class="card-art art-lift"><img
             src="https://upload.wikimedia.org/wikipedia/commons/c/cf/2001_Nissan_Skyline_GT-R_V-Spec_II_R34_%2879241%29.jpg"
             alt="2001 Nissan Skyline GT-R V-Spec II R34"></div>
@@ -40,7 +56,7 @@
         </div>
       </article>
 
-      <article class="poly-card glow" tabindex="0">
+      <article class="poly-card glow" tabindex="0" data-tags="turbo">
         <div class="card-art art-glow"><img
             src="https://upload.wikimedia.org/wikipedia/commons/4/47/1996-2002_Toyota_Supra_rear.jpg"
             alt="1996-2002 Toyota Supra A80"></div>
@@ -56,7 +72,7 @@
         </div>
       </article>
 
-      <article class="poly-card flip" tabindex="0">
+      <article class="poly-card flip" tabindex="0" data-tags="turbo lightweight">
         <div class="flip-inner">
           <div class="flip-face card-front">
             <div class="card-art art-flip"><img
@@ -82,7 +98,7 @@
         </div>
       </article>
 
-      <article class="poly-card float" tabindex="0">
+      <article class="poly-card float" tabindex="0" data-tags="lightweight">
         <div class="card-art art-float"><img src="https://upload.wikimedia.org/wikipedia/commons/f/f5/Civic_R_EK9_1.JPG"
             alt="Honda Civic Type R EK9"></div>
         <div class="card-copy">
@@ -97,7 +113,7 @@
         </div>
       </article>
 
-      <article class="poly-card sheen" tabindex="0">
+      <article class="poly-card sheen" tabindex="0" data-tags="turbo awd">
         <div class="card-art art-sheen"><img
             src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mitsubishi_Lancer_Evolution_VI_IMG_0346.jpg"
             alt="Mitsubishi Lancer Evolution VI"></div>
@@ -113,7 +129,7 @@
         </div>
       </article>
 
-      <article class="poly-card pulse" tabindex="0">
+      <article class="poly-card pulse" tabindex="0" data-tags="lightweight">
         <div class="card-art art-pulse"><img
             src="https://upload.wikimedia.org/wikipedia/commons/4/42/Nissan_Silvia_%2822781%29.jpg"
             alt="Nissan Silvia S13"></div>
@@ -129,7 +145,7 @@
         </div>
       </article>
 
-      <article class="poly-card draw" tabindex="0">
+      <article class="poly-card draw" tabindex="0" data-tags="lightweight">
         <div class="card-art art-draw"><img
             src="https://upload.wikimedia.org/wikipedia/commons/d/d9/Sprinter_Trueno_1600_GT_%28AE86%29.jpg"
             alt="Toyota Sprinter Trueno AE86"></div>
@@ -145,7 +161,7 @@
         </div>
       </article>
 
-      <article class="poly-card reveal" tabindex="0">
+      <article class="poly-card reveal" tabindex="0" data-tags="turbo awd">
         <div class="card-art art-reveal"><img
             src="https://upload.wikimedia.org/wikipedia/commons/a/a0/Subaru_Impreza_22B_STi.jpg"
             alt="Subaru Impreza 22B STI"></div>
@@ -165,6 +181,33 @@
     <footer><span class="footer-mark">◆</span> JDM ARCHIVE · CSS motion garage · <a href="../">back to coursework</a>
     </footer>
   </main>
+  <script>
+    const filterButtons = document.querySelectorAll('.filter-button');
+    const cards = document.querySelectorAll('.poly-card');
+    const scanStatus = document.querySelector('.scan-status');
+
+    filterButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const filter = button.dataset.filter;
+        let visible = 0;
+        filterButtons.forEach((item) => item.classList.toggle('is-active', item === button));
+        cards.forEach((card) => {
+          const matches = filter === 'all' || card.dataset.tags.includes(filter);
+          card.classList.toggle('is-hidden', !matches);
+          if (matches) visible += 1;
+        });
+        scanStatus.textContent = `${String(visible).padStart(2, '0')} SIGNALS FOUND`;
+      });
+    });
+
+    document.querySelectorAll('.poly-card').forEach((card) => {
+      card.addEventListener('pointermove', (event) => {
+        const bounds = card.getBoundingClientRect();
+        card.style.setProperty('--pointer-x', `${event.clientX - bounds.left}px`);
+        card.style.setProperty('--pointer-y', `${event.clientY - bounds.top}px`);
+      });
+    });
+  </script>
 </body>
 
 </html>
