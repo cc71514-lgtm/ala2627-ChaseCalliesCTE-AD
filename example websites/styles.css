@@ -28,9 +28,8 @@ body {
   margin: 0;
   color: var(--text);
   background:
-    linear-gradient(118deg, rgba(8, 10, 14, .72), transparent 36%, rgba(8, 10, 14, .35)),
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, .025) 0 1px, transparent 1px 5px),
-    #24252a;
+    radial-gradient(ellipse at 50% 28%, rgba(42, 62, 75, .55), transparent 42%),
+    linear-gradient(180deg, #11181f 0%, #0d1117 58%, #070a0e 100%);
   font: 16px/1.55 'Space Grotesk', 'Trebuchet MS', sans-serif;
 }
 
@@ -39,15 +38,17 @@ body::before {
   inset: 0;
   z-index: -1;
   content: '';
-  opacity: .75;
+  opacity: .72;
   background-image:
-    radial-gradient(ellipse at 9% 10%, transparent 0 4rem, rgba(255, 128, 109, .27) 4.2rem 4.65rem, transparent 9rem),
-    radial-gradient(ellipse at 92% 20%, transparent 0 5rem, rgba(101, 233, 225, .22) 5.2rem 5.65rem, transparent 11rem),
-    radial-gradient(ellipse at 76% 86%, transparent 0 4rem, rgba(197, 238, 112, .18) 4.2rem 4.7rem, transparent 10rem),
-    repeating-linear-gradient(96deg, transparent 0 90px, rgba(0, 0, 0, .15) 91px 93px, transparent 94px 180px),
-    repeating-linear-gradient(174deg, transparent 0 140px, rgba(255, 255, 255, .035) 141px 143px, transparent 144px 260px);
-  background-size: auto, auto, auto, 370px 310px, 510px 430px;
-  filter: saturate(1.15);
+    linear-gradient(180deg, transparent 0 31%, rgba(101, 233, 225, .08) 31.1% 31.25%, transparent 31.4%),
+    repeating-linear-gradient(90deg, transparent 0 67px, rgba(101, 233, 225, .08) 68px 69px, transparent 70px 165px),
+    repeating-linear-gradient(174deg, transparent 0 55px, rgba(255, 255, 255, .045) 56px 57px, transparent 58px 145px),
+    linear-gradient(166deg, transparent 0 38%, rgba(255, 128, 109, .16) 38.2% 38.4%, transparent 38.6%),
+    linear-gradient(14deg, transparent 0 68%, rgba(197, 238, 112, .12) 68.2% 68.4%, transparent 68.6%);
+  background-size: 100% 100%, 100% 100%, 100% 460px, 100% 100%, 100% 100%;
+  transform: perspective(520px) rotateX(18deg) scale(1.16);
+  transform-origin: 50% 100%;
+  filter: saturate(1.35);
   pointer-events: none;
 }
 
@@ -56,16 +57,14 @@ body::after {
   inset: -12%;
   z-index: -1;
   content: '';
-  opacity: .34;
+  opacity: .4;
   background:
-    linear-gradient(102deg, transparent 7%, var(--coral) 7.3% 8.1%, transparent 8.5% 100%),
-    linear-gradient(164deg, transparent 23%, var(--cyan) 23.3% 24%, transparent 24.4% 100%),
-    linear-gradient(82deg, transparent 69%, var(--yellow) 69.2% 69.7%, transparent 70.1% 100%),
-    linear-gradient(12deg, transparent 83%, var(--lime) 83.2% 84%, transparent 84.4% 100%);
-  background-size: 100% 260px, 100% 370px, 100% 430px, 100% 520px;
-  background-position: 0 4%, 0 35%, 0 57%, 0 80%;
-  filter: blur(1px) saturate(1.3);
-  transform: rotate(-2deg);
+    repeating-linear-gradient(104deg, transparent 0 190px, rgba(255, 128, 109, .5) 191px 193px, transparent 194px 420px),
+    repeating-linear-gradient(76deg, transparent 0 260px, rgba(101, 233, 225, .36) 261px 262px, transparent 263px 560px),
+    linear-gradient(180deg, transparent 0 44%, rgba(8, 10, 14, .82) 44.2% 44.5%, transparent 44.7%);
+  background-size: 100% 100%, 100% 100%, 100% 100%;
+  filter: blur(.5px) saturate(1.5);
+  animation: traffic 18s linear infinite;
   pointer-events: none;
 }
 
@@ -515,6 +514,16 @@ footer a {
   }
 }
 
+@keyframes traffic {
+  from {
+    background-position: 0 0, 0 0, 0 0;
+  }
+
+  to {
+    background-position: 180px 0, -240px 0, 0 0;
+  }
+}
+
 @keyframes blink {
   50% {
     opacity: .35;
@@ -529,7 +538,7 @@ footer a {
 
   .card-grid {
     gap: 14px;
-    margin-top: 45px;
+    margin-top: 20px;
   }
 
   .topline {
