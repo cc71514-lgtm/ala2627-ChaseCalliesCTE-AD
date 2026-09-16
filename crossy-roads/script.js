@@ -5,8 +5,8 @@ const messageEl = document.getElementById('message');
 const startBtn = document.getElementById('start-btn');
 
 const GRID_SIZE = 9;
-const ROAD_ROWS = [2, 3, 5, 6];
-const INITIAL_PLAYER = { x: 4, y: 8 };
+const VISIBLE_ROWS = 11;
+const INITIAL_PLAYER = { x: 4, y: 9 };
 const CAR_COLORS = ['red', 'blue', 'yellow', 'green'];
 
 const state = {
@@ -14,6 +14,7 @@ const state = {
   score: 0,
   best: Number(localStorage.getItem('crossy-best') || 0),
   player: { ...INITIAL_PLAYER },
+  terrain: [],
   obstacles: [],
   animationId: null,
   lastTime: 0,
@@ -25,8 +26,7 @@ bestEl.textContent = state.best;
 
 function createBoard() {
   board.innerHTML = '';
-
-  for (let row = 0; row < GRID_SIZE; row += 1) {
+  for (let row = 0; row < VISIBLE_ROWS; row += 1) {
     for (let col = 0; col < GRID_SIZE; col += 1) {
       const cell = document.createElement('div');
       cell.className = 'cell';
@@ -37,35 +37,49 @@ function createBoard() {
   }
 }
 
-function buildObstacles() {
-  const obstacleGroup = [];
+function createTerrainRow(row, forceGrass = false) {
+  const previous = state.terrain[0];
+  return { row, road: !forceGrass && (Math.random() < 0.48 || previous?.road === false) };
+}
 
-  ROAD_ROWS.forEach((row, laneIndex) => {
-    const direction = laneIndex % 2 === 0 ? 1 : -1;
-    const length = Math.random() < 0.75 ? 1.4 : 1.8;
-    const gap = 1.5 + Math.random() * 2.4;
-    const x = direction === 1 ? -length - laneIndex * gap : GRID_SIZE + laneIndex * gap;
-    const speed = 0.28 + Math.random() * 0.3 + state.speed * 0.06;
+function createCarsForRow(row) {
+  const direction = Math.random() < 0.5 ? 1 : -1;
+  const carCount = Math.random() < 0.35 ? 2 : 1;
+  const cars = [];
 
-    obstacleGroup.push({
+  for (let index = 0; index < carCount; index += 1) {
+    const length = Math.random() < 0.8 ? 1.35 : 1.85;
+    const gap = 3.2 + Math.random() * 2.5;
+    cars.push({
       row,
-      x,
+      x: direction === 1 ? -length - index * gap : GRID_SIZE + index * gap,
       length,
       direction,
-      speed,
+      speed: 0.24 + Math.random() * 0.22 + state.speed * 0.04,
       color: CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)],
-      type: Math.random() < 0.72 ? 'car' : 'truck',
+      type: Math.random() < 0.75 ? 'car' : 'truck',
     });
-  });
+  }
 
-  state.obstacles = obstacleGroup;
+  return cars;
+}
+
+function buildWorld() {
+  state.terrain = [];
+  state.obstacles = [];
+  for (let row = 0; row < VISIBLE_ROWS; row += 1) {
+    const terrainRow = { row, road: row === 0 ? false : Math.random() < 0.45 };
+    state.terrain.push(terrainRow);
+    if (terrainRow.road && row < VISIBLE_ROWS - 2) state.obstacles.push(...createCarsForRow(row));
+  }
+  state.terrain[VISIBLE_ROWS - 1] = { row: VISIBLE_ROWS - 1, road: false };
 }
 
 function resetGame() {
   state.score = 0;
   state.speed = 1;
   state.player = { ...INITIAL_PLAYER };
-  buildObstacles();
+  buildWorld();
   scoreEl.textContent = '0';
   messageEl.textContent = 'Use arrow keys or WASD to move.';
   render();
@@ -78,59 +92,55 @@ function updateBest() {
 }
 
 function render() {
-  const cells = [...board.children];
-
-  cells.forEach((cell) => {
+  [...board.children].forEach((cell) => {
     const row = Number(cell.dataset.row);
     const col = Number(cell.dataset.col);
-    cell.classList.remove('grass', 'road', 'player', 'obstacle', ...CAR_COLORS, 'car', 'truck');
-
-    if (ROAD_ROWS.includes(row)) {
-      cell.classList.add('road');
-    } else {
-      cell.classList.add('grass');
-    }
-
-    if (state.player.x === col && state.player.y === row) {
-      cell.classList.add('player');
-    }
-
+    const terrainRow = state.terrain[row];
     const obstacleHere = state.obstacles.find(
-      (obstacle) => obstacle.row === row && col >= obstacle.x && col < obstacle.x + obstacle.length
+      (obstacle) => obstacle.row === row && col >= obstacle.x && col < obstacle.x + obstacle.length,
     );
 
+    cell.className = 'cell';
+    cell.classList.add(terrainRow?.road ? 'road' : 'grass');
+    cell.innerHTML = '';
+
+    if (state.player.x === col && state.player.y === row) cell.classList.add('player');
     if (obstacleHere) {
       cell.classList.add('obstacle', obstacleHere.color, obstacleHere.type);
       cell.innerHTML = '<span class="car-light car-light-front"></span><span class="car-window"></span><span class="car-light car-light-back"></span>';
-    } else {
-      cell.innerHTML = '';
     }
   });
 }
 
-function movePlayer(dx, dy) {
-  if (!state.running) {
-    return;
-  }
+function advanceWorld() {
+  state.terrain.forEach((terrainRow) => { terrainRow.row += 1; });
+  state.terrain.pop();
+  const newRow = createTerrainRow(0);
+  state.terrain.unshift(newRow);
 
+  state.obstacles.forEach((obstacle) => { obstacle.row += 1; });
+  state.obstacles = state.obstacles.filter((obstacle) => obstacle.row < VISIBLE_ROWS);
+  if (newRow.road) state.obstacles.push(...createCarsForRow(0));
+}
+
+function movePlayer(dx, dy) {
+  if (!state.running) return;
   const nextX = state.player.x + dx;
   const nextY = state.player.y + dy;
-
-  if (nextX < 0 || nextX >= GRID_SIZE || nextY < 0 || nextY >= GRID_SIZE) {
-    return;
-  }
+  if (nextX < 0 || nextX >= GRID_SIZE || nextY < 0 || nextY >= VISIBLE_ROWS) return;
 
   state.player.x = nextX;
   state.player.y = nextY;
 
-  if (state.player.y === 0) {
+  if (dy < 0 && state.player.y <= 3) {
     state.score += 1;
-    state.speed += 0.04;
+    state.speed += 0.025;
+    state.player.y += 1;
+    advanceWorld();
     scoreEl.textContent = String(state.score);
     updateBest();
-    messageEl.textContent = 'Nice! Keep going!';
-    state.player = { ...INITIAL_PLAYER };
-    state.invulnerableUntil = performance.now() + 650;
+    state.invulnerableUntil = performance.now() + 450;
+    messageEl.textContent = 'Keep crossing!';
   }
 
   checkCollision();
@@ -138,26 +148,13 @@ function movePlayer(dx, dy) {
 }
 
 function checkCollision() {
-  const playerIsOnRoad = ROAD_ROWS.includes(state.player.y);
-
-  if (!playerIsOnRoad) {
-    return;
-  }
-
-  const hit = state.obstacles.some((obstacle) => {
-    if (obstacle.row !== state.player.y) {
-      return false;
-    }
-
-    const obstacleRange = [obstacle.x, obstacle.x + obstacle.length - 1];
-    return state.player.x >= obstacleRange[0] && state.player.x <= obstacleRange[1];
-  });
-
-  if (!hit || performance.now() < state.invulnerableUntil) {
-    return;
-  }
-
-  endGame();
+  if (performance.now() < state.invulnerableUntil || !state.terrain[state.player.y]?.road) return;
+  const hit = state.obstacles.some((obstacle) => (
+    obstacle.row === state.player.y
+    && state.player.x + 0.25 >= obstacle.x
+    && state.player.x + 0.75 <= obstacle.x + obstacle.length
+  ));
+  if (hit) endGame();
 }
 
 function endGame() {
@@ -168,30 +165,23 @@ function endGame() {
 
 function updateObstacles(delta) {
   state.obstacles.forEach((obstacle) => {
-    obstacle.x += obstacle.direction * obstacle.speed * delta * 0.035;
-
+    obstacle.x += obstacle.direction * obstacle.speed * delta * 0.034;
     const offLeft = obstacle.direction === -1 && obstacle.x + obstacle.length <= 0;
     const offRight = obstacle.direction === 1 && obstacle.x >= GRID_SIZE;
-
     if (offLeft || offRight) {
-      const gap = Math.random() * 2.4 + 1.5;
-      obstacle.length = Math.random() < 0.75 ? 1.4 : 1.8;
+      const gap = Math.random() * 2.6 + 2;
       obstacle.x = obstacle.direction === 1 ? -obstacle.length - gap : GRID_SIZE + gap;
-      obstacle.speed = 0.28 + Math.random() * 0.3 + state.speed * 0.06;
+      obstacle.speed = 0.24 + Math.random() * 0.22 + state.speed * 0.04;
       obstacle.color = CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)];
-      obstacle.type = Math.random() < 0.72 ? 'car' : 'truck';
+      obstacle.type = Math.random() < 0.75 ? 'car' : 'truck';
     }
   });
-
   checkCollision();
   render();
 }
 
 function gameLoop(timestamp) {
-  if (!state.running) {
-    return;
-  }
-
+  if (!state.running) return;
   const delta = timestamp - state.lastTime || 16;
   state.lastTime = timestamp;
   updateObstacles(delta);
@@ -199,38 +189,29 @@ function gameLoop(timestamp) {
 }
 
 function startGame() {
+  cancelAnimationFrame(state.animationId);
   state.running = true;
   state.lastTime = 0;
   state.player = { ...INITIAL_PLAYER };
   state.score = 0;
-  scoreEl.textContent = '0';
   state.speed = 1;
   state.invulnerableUntil = performance.now() + 900;
-  buildObstacles();
+  buildWorld();
+  scoreEl.textContent = '0';
   messageEl.textContent = 'Cross the road!';
   render();
-  cancelAnimationFrame(state.animationId);
   state.animationId = requestAnimationFrame(gameLoop);
 }
 
 function handleKeydown(event) {
   const key = event.key.toLowerCase();
-
-  if (key === 'arrowup' || key === 'w') {
-    movePlayer(0, -1);
-  } else if (key === 'arrowdown' || key === 's') {
-    movePlayer(0, 1);
-  } else if (key === 'arrowleft' || key === 'a') {
-    movePlayer(-1, 0);
-  } else if (key === 'arrowright' || key === 'd') {
-    movePlayer(1, 0);
-  }
+  if (key === 'arrowup' || key === 'w') movePlayer(0, -1);
+  if (key === 'arrowdown' || key === 's') movePlayer(0, 1);
+  if (key === 'arrowleft' || key === 'a') movePlayer(-1, 0);
+  if (key === 'arrowright' || key === 'd') movePlayer(1, 0);
 }
 
 window.addEventListener('keydown', handleKeydown);
-startBtn.addEventListener('click', () => {
-  startGame();
-});
-
+startBtn.addEventListener('click', startGame);
 createBoard();
 resetGame();

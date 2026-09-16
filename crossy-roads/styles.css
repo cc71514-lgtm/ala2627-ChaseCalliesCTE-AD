@@ -1,18 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap');
+
 :root {
-  --bg1: #090d1a;
-  --bg2: #101a2a;
-  --panel: rgba(15, 23, 42, 0.9);
-  --panel-border: rgba(148, 163, 184, 0.25);
-  --cyan: #67e8f9;
-  --mint: #6ee7b7;
-  --pink: #f472b6;
-  --gold: #fbbf24;
-  --danger: #fb7185;
-  --road: #2d3748;
-  --grass: #123524;
-  --track: #e2e8f0;
-  --text: #e2e8f0;
-  --muted: #a0aec0;
+  --sky: #8fd3f4;
+  --sky-deep: #63b8e4;
+  --grass: #68a74f;
+  --grass-dark: #4d8e42;
+  --road: #4a4d4d;
+  --road-dark: #3d4141;
+  --road-line: #e4d69c;
+  --text: #18252a;
+  --muted: #53646a;
+  --panel: rgba(255, 255, 255, 0.82);
+  --border: rgba(24, 37, 42, 0.2);
 }
 
 * {
@@ -24,154 +23,213 @@ body {
   min-height: 100vh;
   display: grid;
   place-items: center;
-  background: radial-gradient(circle at top, #142033, var(--bg1) 55%);
+  background: linear-gradient(180deg, var(--sky) 0 58%, var(--sky-deep));
   color: var(--text);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Montserrat, Arial, sans-serif;
 }
 
 .game-shell {
-  width: min(90vw, 620px);
-  background: rgba(15, 23, 42, 0.75);
-  border: 1px solid var(--panel-border);
-  border-radius: 20px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
-  padding: 1.2rem;
+  position: relative;
+  width: min(92vw, 650px);
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--panel);
+  box-shadow: 0 22px 50px rgba(31, 77, 94, 0.28);
+  backdrop-filter: blur(5px);
 }
 
 .topbar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  justify-content: center;
+  min-height: 4.5rem;
 }
 
 .eyebrow {
-  margin: 0 0 0.2rem;
-  font-size: 0.7rem;
-  letter-spacing: 0.18em;
+  margin: 0 0 0.25rem;
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-align: center;
   text-transform: uppercase;
-  color: var(--cyan);
 }
 
 h1 {
   margin: 0;
-  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-size: clamp(1.5rem, 4vw, 2.3rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  text-align: center;
 }
 
 .scoreboard {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.25rem;
   display: flex;
-  gap: 0.8rem;
+  gap: 0.35rem;
+  z-index: 4;
 }
 
 .stat {
-  min-width: 80px;
-  background: rgba(15, 118, 110, 0.18);
-  border: 1px solid rgba(103, 232, 249, 0.35);
-  border-radius: 12px;
-  padding: 0.55rem 0.7rem;
+  min-width: 4.5rem;
+  padding: 0.5rem 0.65rem;
+  border: 2px solid rgba(24, 37, 42, 0.65);
+  border-radius: 8px;
+  background: #fff7dc;
+  box-shadow: 2px 3px 0 rgba(24, 37, 42, 0.2);
   text-align: center;
 }
 
 .stat span {
   display: block;
-  font-size: 0.7rem;
+  color: var(--muted);
+  font-size: 0.58rem;
+  font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--muted);
 }
 
 .stat strong {
   display: block;
-  margin-top: 0.2rem;
-  font-size: 1.3rem;
+  margin-top: 0.1rem;
+  font-size: 1.2rem;
+  font-weight: 900;
 }
 
 .status-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   gap: 1rem;
-  margin: 1rem 0 1.2rem;
+  margin: 0.7rem 0 1rem;
 }
 
 #message {
   margin: 0;
   color: var(--muted);
-  font-weight: 600;
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
 button {
-  border: none;
-  border-radius: 10px;
-  padding: 0.8rem 1rem;
-  font-size: 0.95rem;
-  font-weight: 700;
+  border: 0;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  background: #f5bd4f;
+  color: #18252a;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 800;
   cursor: pointer;
+  box-shadow: 0 3px 0 #bd7b26;
   transition: transform 0.12s ease, filter 0.2s ease;
 }
 
 button:hover {
-  filter: brightness(1.08);
+  filter: brightness(1.06);
 }
 
 button:active {
-  transform: translateY(1px);
-}
-
-#start-btn {
-  background: linear-gradient(135deg, var(--cyan), var(--mint));
-  color: #06131d;
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #bd7b26;
 }
 
 .board {
   display: grid;
   grid-template-columns: repeat(9, minmax(0, 1fr));
-  gap: 0.18rem;
-  background: linear-gradient(180deg, rgba(34, 197, 94, 0.3), rgba(22, 163, 74, 0.15));
-  border: 1px solid rgba(110, 231, 183, 0.35);
-  border-radius: 18px;
-  padding: 0.45rem;
-  aspect-ratio: 1 / 1;
+  grid-template-rows: repeat(11, minmax(0, 1fr));
+  gap: 0;
+  overflow: hidden;
+  aspect-ratio: 9 / 11;
+  border: 5px solid #355541;
+  border-radius: 12px;
+  background: var(--grass);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.18), 0 8px 0 rgba(24, 37, 42, 0.16);
 }
 
 .cell {
+  position: relative;
   display: grid;
   place-items: center;
-  border-radius: 8px;
-  background: rgba(15, 23, 42, 0.2);
+  min-width: 0;
+  min-height: 0;
 }
 
 .cell.grass {
-  background: linear-gradient(180deg, rgba(34, 197, 94, 0.24), rgba(22, 163, 74, 0.3));
+  background-color: var(--grass);
+  background-image: radial-gradient(ellipse at 20% 30%, rgba(32, 91, 47, 0.42) 0 1px, transparent 1.5px), radial-gradient(ellipse at 70% 70%, rgba(202, 221, 111, 0.42) 0 1px, transparent 1.5px), linear-gradient(20deg, rgba(36, 111, 48, 0.25), transparent 45%);
+  background-size: 9px 11px, 13px 15px, auto;
+  border-bottom: 1px solid rgba(36, 84, 42, 0.2);
 }
 
 .cell.road {
-  background: linear-gradient(180deg, rgba(71, 85, 105, 0.8), rgba(51, 65, 85, 0.9));
+  background-color: var(--road);
+  background-image: linear-gradient(90deg, transparent 48%, rgba(255, 255, 255, 0.04) 50%, transparent 52%), repeating-linear-gradient(0deg, transparent 0 15px, rgba(30, 33, 33, 0.2) 16px 17px);
+  border-top: 2px solid #77766c;
+  border-bottom: 2px solid #77766c;
+}
+
+.cell.road::before,
+.cell.road::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--road-line);
+  content: '';
+  opacity: 0.8;
+}
+
+.cell.road::before {
+  left: 0;
+}
+
+.cell.road::after {
+  right: 0;
 }
 
 .cell.player {
-  background: linear-gradient(135deg, var(--pink), #f9a8d4);
-  box-shadow: 0 0 20px rgba(244, 114, 182, 0.75);
+  z-index: 3;
+  width: 65%;
+  height: 65%;
+  align-self: center;
+  justify-self: center;
+  border: 3px solid #263b2b;
+  border-radius: 42% 42% 35% 35%;
+  background: #f1e4b7;
+  box-shadow: 0 3px 0 rgba(24, 37, 42, 0.3);
+}
+
+.cell.player::before {
+  width: 40%;
+  height: 40%;
+  border-radius: 50%;
+  background: #273d2b;
+  content: '';
 }
 
 .cell.obstacle {
-  position: relative;
+  z-index: 2;
   overflow: hidden;
+  border: 2px solid rgba(19, 31, 34, 0.7);
   border-radius: 5px;
-  background: #d64045;
-  box-shadow: inset 0 0 0 2px rgba(15, 23, 42, 0.28), 0 3px 5px rgba(0, 0, 0, 0.25);
+  background: #c7473e;
+  box-shadow: 0 3px 0 rgba(22, 29, 29, 0.38);
 }
 
 .cell.obstacle.blue {
-  background: #2878c8;
+  background: #3f78a5;
 }
 
 .cell.obstacle.yellow {
-  background: #e0a928;
+  background: #d49c39;
 }
 
 .cell.obstacle.green {
-  background: #319b65;
+  background: #4b8b5b;
 }
 
 .cell.obstacle.truck {
@@ -181,18 +239,19 @@ button:active {
 .car-window {
   width: 48%;
   height: 42%;
+  border: 1px solid rgba(19, 31, 34, 0.8);
   border-radius: 3px;
-  background: linear-gradient(135deg, #d9f3ff, #527285);
-  border: 1px solid rgba(8, 24, 38, 0.55);
+  background: linear-gradient(135deg, #c8d7d2 0 48%, #78939a 49% 100%);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.45);
 }
 
 .car-light {
   position: absolute;
-  width: 15%;
-  height: 28%;
+  width: 13%;
+  height: 25%;
   border-radius: 2px;
-  background: #fff6bf;
-  box-shadow: 0 0 4px #fff6bf;
+  background: #fff5bd;
+  box-shadow: 0 0 3px #fff5bd;
 }
 
 .car-light-front {
@@ -201,25 +260,32 @@ button:active {
 
 .car-light-back {
   right: 8%;
-  background: #ffb3a7;
-  box-shadow: 0 0 4px #ff8f83;
-}
+  background: #e98879;
+  box-shadow: none;
 }
 
 @media (max-width: 560px) {
   .game-shell {
-    padding: 1rem;
-  }
-
-  .topbar,
-  .status-row {
-    flex-direction: column;
-    align-items: flex-start;
+    padding: 0.8rem;
   }
 
   .scoreboard {
-    width: 100%;
-    justify-content: space-between;
+    top: 0.8rem;
+    left: 0.8rem;
+  }
+
+  .stat {
+    min-width: 3.9rem;
+    padding: 0.4rem;
+  }
+
+  .topbar {
+    min-height: 4rem;
+  }
+
+  .status-row {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   #start-btn {
