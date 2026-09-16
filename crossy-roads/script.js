@@ -7,6 +7,7 @@ const startBtn = document.getElementById('start-btn');
 const GRID_SIZE = 9;
 const ROAD_ROWS = [2, 3, 5, 6];
 const INITIAL_PLAYER = { x: 4, y: 8 };
+const CAR_COLORS = ['red', 'blue', 'yellow', 'green'];
 
 const state = {
   running: false,
@@ -17,6 +18,7 @@ const state = {
   animationId: null,
   lastTime: 0,
   speed: 1,
+  invulnerableUntil: 0,
 };
 
 bestEl.textContent = state.best;
@@ -40,9 +42,10 @@ function buildObstacles() {
 
   ROAD_ROWS.forEach((row, laneIndex) => {
     const direction = laneIndex % 2 === 0 ? 1 : -1;
-    const length = Math.random() < 0.5 ? 2 : 3;
-    const x = direction === 1 ? -length : GRID_SIZE;
-    const speed = 0.7 + Math.random() * 0.9 + state.speed * 0.18;
+    const length = Math.random() < 0.75 ? 1.4 : 1.8;
+    const gap = 1.5 + Math.random() * 2.4;
+    const x = direction === 1 ? -length - laneIndex * gap : GRID_SIZE + laneIndex * gap;
+    const speed = 0.28 + Math.random() * 0.3 + state.speed * 0.06;
 
     obstacleGroup.push({
       row,
@@ -50,7 +53,8 @@ function buildObstacles() {
       length,
       direction,
       speed,
-      color: laneIndex % 2 === 0 ? '#67e8f9' : '#fbbf24',
+      color: CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)],
+      type: Math.random() < 0.72 ? 'car' : 'truck',
     });
   });
 
@@ -79,7 +83,7 @@ function render() {
   cells.forEach((cell) => {
     const row = Number(cell.dataset.row);
     const col = Number(cell.dataset.col);
-    cell.classList.remove('grass', 'road', 'player', 'obstacle');
+    cell.classList.remove('grass', 'road', 'player', 'obstacle', ...CAR_COLORS, 'car', 'truck');
 
     if (ROAD_ROWS.includes(row)) {
       cell.classList.add('road');
@@ -96,7 +100,10 @@ function render() {
     );
 
     if (obstacleHere) {
-      cell.classList.add('obstacle');
+      cell.classList.add('obstacle', obstacleHere.color, obstacleHere.type);
+      cell.innerHTML = '<span class="car-light car-light-front"></span><span class="car-window"></span><span class="car-light car-light-back"></span>';
+    } else {
+      cell.innerHTML = '';
     }
   });
 }
@@ -118,12 +125,12 @@ function movePlayer(dx, dy) {
 
   if (state.player.y === 0) {
     state.score += 1;
-    state.speed += 0.14;
+    state.speed += 0.04;
     scoreEl.textContent = String(state.score);
     updateBest();
     messageEl.textContent = 'Nice! Keep going!';
     state.player = { ...INITIAL_PLAYER };
-    buildObstacles();
+    state.invulnerableUntil = performance.now() + 650;
   }
 
   checkCollision();
@@ -146,7 +153,7 @@ function checkCollision() {
     return state.player.x >= obstacleRange[0] && state.player.x <= obstacleRange[1];
   });
 
-  if (!hit) {
+  if (!hit || performance.now() < state.invulnerableUntil) {
     return;
   }
 
@@ -161,16 +168,18 @@ function endGame() {
 
 function updateObstacles(delta) {
   state.obstacles.forEach((obstacle) => {
-    obstacle.x += obstacle.direction * obstacle.speed * delta * 0.06;
+    obstacle.x += obstacle.direction * obstacle.speed * delta * 0.035;
 
     const offLeft = obstacle.direction === -1 && obstacle.x + obstacle.length <= 0;
     const offRight = obstacle.direction === 1 && obstacle.x >= GRID_SIZE;
 
     if (offLeft || offRight) {
-      const gap = Math.random() * 1.4 + 0.8;
-      obstacle.length = Math.random() < 0.5 ? 2 : 3;
+      const gap = Math.random() * 2.4 + 1.5;
+      obstacle.length = Math.random() < 0.75 ? 1.4 : 1.8;
       obstacle.x = obstacle.direction === 1 ? -obstacle.length - gap : GRID_SIZE + gap;
-      obstacle.speed = 0.7 + Math.random() * 0.9 + state.speed * 0.18;
+      obstacle.speed = 0.28 + Math.random() * 0.3 + state.speed * 0.06;
+      obstacle.color = CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)];
+      obstacle.type = Math.random() < 0.72 ? 'car' : 'truck';
     }
   });
 
@@ -196,6 +205,7 @@ function startGame() {
   state.score = 0;
   scoreEl.textContent = '0';
   state.speed = 1;
+  state.invulnerableUntil = performance.now() + 900;
   buildObstacles();
   messageEl.textContent = 'Cross the road!';
   render();

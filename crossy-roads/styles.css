@@ -155,8 +155,55 @@ button:active {
 }
 
 .cell.obstacle {
-  background: linear-gradient(135deg, var(--cyan), var(--gold));
-  box-shadow: inset 0 0 0 2px rgba(15, 23, 42, 0.25);
+  position: relative;
+  overflow: hidden;
+  border-radius: 5px;
+  background: #d64045;
+  box-shadow: inset 0 0 0 2px rgba(15, 23, 42, 0.28), 0 3px 5px rgba(0, 0, 0, 0.25);
+}
+
+.cell.obstacle.blue {
+  background: #2878c8;
+}
+
+.cell.obstacle.yellow {
+  background: #e0a928;
+}
+
+.cell.obstacle.green {
+  background: #319b65;
+}
+
+.cell.obstacle.truck {
+  border-radius: 3px;
+}
+
+.car-window {
+  width: 48%;
+  height: 42%;
+  border-radius: 3px;
+  background: linear-gradient(135deg, #d9f3ff, #527285);
+  border: 1px solid rgba(8, 24, 38, 0.55);
+}
+
+.car-light {
+  position: absolute;
+  width: 15%;
+  height: 28%;
+  border-radius: 2px;
+  background: #fff6bf;
+  box-shadow: 0 0 4px #fff6bf;
+}
+
+.car-light-front {
+  left: 8%;
+}
+
+.car-light-back {
+  right: 8%;
+  background: #ffb3a7;
+  box-shadow: 0 0 4px #ff8f83;
+}
 }
 
 @media (max-width: 560px) {
