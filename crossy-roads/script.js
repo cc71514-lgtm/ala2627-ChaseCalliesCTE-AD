@@ -171,8 +171,8 @@ function checkCollision() {
   if (performance.now() < state.invulnerableUntil || !state.terrain[state.player.y]?.road) return;
   const hit = state.obstacles.some((obstacle) => (
     obstacle.row === state.player.y
-    && state.player.x + 0.25 >= obstacle.x
-    && state.player.x + 0.75 <= obstacle.x + obstacle.length
+    && state.player.x < obstacle.x + obstacle.length
+    && state.player.x + 1 > obstacle.x
   ));
   if (hit) endGame();
 }
