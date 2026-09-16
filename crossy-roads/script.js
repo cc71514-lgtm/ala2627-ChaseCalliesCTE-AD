@@ -35,6 +35,11 @@ function createBoard() {
       board.appendChild(cell);
     }
   }
+
+  const trafficLayer = document.createElement('div');
+  trafficLayer.className = 'traffic-layer';
+  trafficLayer.setAttribute('aria-hidden', 'true');
+  board.appendChild(trafficLayer);
 }
 
 function createTerrainRow(row, forceGrass = false) {
@@ -92,23 +97,38 @@ function updateBest() {
 }
 
 function render() {
-  [...board.children].forEach((cell) => {
+  [...board.querySelectorAll('.cell')].forEach((cell) => {
     const row = Number(cell.dataset.row);
     const col = Number(cell.dataset.col);
     const terrainRow = state.terrain[row];
-    const obstacleHere = state.obstacles.find(
-      (obstacle) => obstacle.row === row && col >= obstacle.x && col < obstacle.x + obstacle.length,
-    );
 
     cell.className = 'cell';
     cell.classList.add(terrainRow?.road ? 'road' : 'grass');
     cell.innerHTML = '';
 
-    if (state.player.x === col && state.player.y === row) cell.classList.add('player');
-    if (obstacleHere) {
-      cell.classList.add('obstacle', obstacleHere.color, obstacleHere.type);
-      cell.innerHTML = '<span class="car-light car-light-front"></span><span class="car-window"></span><span class="car-light car-light-back"></span>';
+    if (state.player.x === col && state.player.y === row) {
+      cell.classList.add('player');
+      cell.innerHTML = '<span class="chicken-body"></span><span class="chicken-eye"></span><span class="chicken-beak"></span><span class="chicken-comb"></span>';
     }
+  });
+
+  renderTraffic();
+}
+
+function renderTraffic() {
+  const trafficLayer = board.querySelector('.traffic-layer');
+  trafficLayer.innerHTML = '';
+
+  state.obstacles.forEach((obstacle) => {
+    const vehicle = document.createElement('div');
+    vehicle.className = `vehicle ${obstacle.color} ${obstacle.type}`;
+    vehicle.style.left = `${(obstacle.x / GRID_SIZE) * 100}%`;
+    vehicle.style.top = `${(obstacle.row / VISIBLE_ROWS) * 100}%`;
+    vehicle.style.width = `${(obstacle.length / GRID_SIZE) * 100}%`;
+    vehicle.style.height = `${(1 / VISIBLE_ROWS) * 100}%`;
+    vehicle.style.setProperty('--direction', obstacle.direction === -1 ? '-1' : '1');
+    vehicle.innerHTML = '<span class="vehicle-window"></span><span class="vehicle-light vehicle-light-front"></span><span class="vehicle-light vehicle-light-back"></span><span class="vehicle-wheel vehicle-wheel-front"></span><span class="vehicle-wheel vehicle-wheel-back"></span>';
+    trafficLayer.appendChild(vehicle);
   });
 }
 
