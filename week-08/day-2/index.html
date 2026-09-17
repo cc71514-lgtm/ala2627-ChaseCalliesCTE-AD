@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
   <title>Obsidian Control | Roblox moderation</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --bg: #090a0c;
@@ -779,13 +780,162 @@
         align-items: flex-start
       }
     }
+
+    .auth-hidden {
+      display: none !important
+    }
+
+    .auth-gate {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: radial-gradient(circle at 50% 0, #20252a 0, transparent 45%), var(--bg)
+    }
+
+    .auth-card {
+      width: min(100%, 430px);
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: var(--shadow)
+    }
+
+    .auth-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px
+    }
+
+    .auth-card h1 {
+      font-size: 27px;
+      letter-spacing: -.04em;
+      margin: 0
+    }
+
+    .auth-card p {
+      color: var(--soft);
+      font-size: 12px;
+      margin: 9px 0 22px
+    }
+
+    .auth-actions {
+      display: grid;
+      gap: 9px
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: #1a1d21;
+      color: var(--text);
+      font-weight: 700;
+      text-align: left
+    }
+
+    .auth-btn:hover {
+      border-color: #737981;
+      background: #24282e
+    }
+
+    .auth-btn[disabled] {
+      opacity: .45;
+      cursor: not-allowed
+    }
+
+    .auth-alert {
+      border-left: 2px solid var(--yellow);
+      background: #19170f;
+      color: #cfc4a0;
+      padding: 10px 12px;
+      font-size: 11px;
+      margin-bottom: 15px
+    }
+
+    .auth-alert.ok {
+      border-color: var(--green);
+      background: #10180d;
+      color: #c5d7ab
+    }
+
+    .auth-status {
+      min-height: 18px;
+      margin-top: 14px;
+      color: var(--soft);
+      font-size: 11px
+    }
+
+    .verify-panel {
+      border-top: 1px solid var(--line);
+      margin-top: 20px;
+      padding-top: 20px
+    }
+
+    .verify-panel h2 {
+      font-size: 14px;
+      margin: 0 0 6px
+    }
+
+    .verify-panel p {
+      margin: 0 0 14px
+    }
+
+    .verify-panel .field {
+      margin-bottom: 10px
+    }
+
+    .verify-panel input {
+      width: 100%
+    }
+
+    .auth-foot {
+      color: var(--muted);
+      font-size: 10px;
+      margin-top: 20px
+    }
   </style>
 
 </head>
 
 
 <body>
-  <div class="app">
+  <section class="auth-gate" id="auth-gate">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="mark">O</div>
+        <div><strong>Obsidian Control</strong><small
+            style="display:block;color:var(--soft);font-size:10px;letter-spacing:.12em;text-transform:uppercase">Private
+            moderation</small></div>
+      </div>
+      <h1>Sign in to continue.</h1>
+      <p>Use an approved account, then verify the Roblox account connected to it before entering the moderation
+        workspace.</p>
+      <div class="auth-alert" id="auth-alert">Authentication is not configured yet. Add your Supabase project URL and
+        public anon key in this file before using the login buttons.</div>
+      <div class="auth-actions"><button class="auth-btn" data-provider="discord" type="button" disabled>Continue with
+          Discord</button><button class="auth-btn" data-provider="google" type="button" disabled>Continue with
+          Google</button></div>
+      <div class="auth-status" id="auth-status"></div>
+      <div class="verify-panel auth-hidden" id="verify-panel">
+        <h2>Verify your Roblox account</h2>
+        <p>Put the one-time code in your Roblox profile About section, then enter your Roblox username and code here.
+        </p>
+        <div class="field"><label for="roblox-username">Roblox username</label><input id="roblox-username"
+            autocomplete="off" placeholder="Your Roblox username"></div>
+        <div class="field"><label for="roblox-code">Verification code</label><input id="roblox-code" autocomplete="off"
+            placeholder="OBSIDIAN-1234"></div><button class="btn primary" id="verify-roblox" type="button">Verify Roblox
+          account</button>
+        <div class="auth-status" id="verify-status"></div>
+      </div>
+      <div class="auth-foot">Access is managed by Supabase. Roblox verification must be checked by a server function.
+      </div>
+    </div>
+  </section>
+  <div class="app auth-hidden" id="dashboard">
     <aside class="sidebar">
       <div class="brand">
         <div class="mark">O</div>
@@ -1071,6 +1221,50 @@
   <div class="toast" id="toast" role="status"></div>
 
   <script>
+    const SUPABASE_URL = '';
+    const SUPABASE_ANON_KEY = '';
+    const authElement = id => document.getElementById(id);
+    const authGate = authElement('auth-gate');
+    const dashboard = authElement('dashboard');
+    const verifyPanel = authElement('verify-panel');
+    const authAlert = authElement('auth-alert');
+    const authStatus = authElement('auth-status');
+    const verifyStatus = authElement('verify-status');
+    let authClient = null;
+    let currentSession = null;
+
+    if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
+      authClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      authAlert.textContent = 'Sign in with an approved provider, then complete Roblox verification.';
+      authAlert.classList.add('ok');
+      document.querySelectorAll('[data-provider]').forEach(button => {
+        button.disabled = false;
+        button.addEventListener('click', async () => {
+          authStatus.textContent = 'Opening secure sign-in...';
+          const { error } = await authClient.auth.signInWithOAuth({ provider: button.dataset.provider, options: { redirectTo: window.location.origin + window.location.pathname } });
+          if (error) authStatus.textContent = `Sign-in failed: ${error.message}`;
+        });
+      });
+      authClient.auth.onAuthStateChange((_event, session) => {
+        currentSession = session;
+        if (!session) return;
+        authStatus.textContent = `Signed in as ${session.user.email || 'approved user'}.`;
+        verifyPanel.classList.remove('auth-hidden');
+      });
+      authClient.auth.getSession().then(({ data }) => { currentSession = data.session; if (currentSession) verifyPanel.classList.remove('auth-hidden'); });
+      authElement('verify-roblox').addEventListener('click', async () => {
+        if (!currentSession) return;
+        const username = authElement('roblox-username').value.trim();
+        const code = authElement('roblox-code').value.trim();
+        if (!username || !code) { verifyStatus.textContent = 'Enter both your Roblox username and code.'; return; }
+        verifyStatus.textContent = 'Checking Roblox profile...';
+        const { data, error } = await authClient.functions.invoke('verify-roblox-profile', { body: { username, code } });
+        if (error || !data?.verified) { verifyStatus.textContent = error?.message || 'That code was not found on the Roblox profile.'; return; }
+        authGate.classList.add('auth-hidden');
+        dashboard.classList.remove('auth-hidden');
+      });
+    }
+
     const logs = [];
     const bans = [];
     const announcements = [];
