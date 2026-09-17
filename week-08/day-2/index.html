@@ -1,496 +1,1094 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Add a button and wire the click — App Design 1</title>
-<meta name="color-scheme" content="dark">
-<style>
-:root{--acc:var(--ss-cyan,#00e5ff)}
-*{box-sizing:border-box}
-body{margin:0;background:var(--ss-void,#0d1322);color:var(--ss-bone,#e8ecf3);
-  font:16px/1.6 var(--ss-body,"Inter",system-ui,sans-serif);padding:1.4rem 1rem 5rem}
-.wrap{max-width:96rem;margin:0 auto}
-a.back{display:inline-block;color:var(--acc);text-decoration:none;font:600 .82rem/1 var(--ss-mono,ui-monospace,monospace);
-  letter-spacing:.1em;text-transform:uppercase;margin:0 0 1rem}
-
-/* ── the grid: the dashboard's, verbatim in behaviour ───────────────────── */
-.bento{display:grid;gap:11px;grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch}
-.bento > *{grid-column:span 2}
-.bento > .w1{grid-column:span 1}
-.bento > .w4{grid-column:span 4}
-/* Height-matching only helps when the tiles in a row are already close. On a phone
-   two tiles share a row and one of them is a five-item plan — stretched, its short
-   neighbour grew 729px of empty gradient. Ragged is correct at this size. */
-@media (max-width:760px){.bento{grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;align-items:start}
-  .bento > *{grid-column:span 3} .bento > .w1{grid-column:span 3} .bento > .w4{grid-column:span 6}}
-@media (min-width:1500px){.bento{grid-template-columns:repeat(8,minmax(0,1fr))}
-  .bento > *{grid-column:span 2} .bento > .w1{grid-column:span 2} .bento > .w4{grid-column:span 8}
-  /* the lab keeps six columns and the criteria ride alongside it, so the widest
-     screen gains density rather than gaining empty space */
-  .bento > .lab{grid-column:span 6} .bento > .lab + *{grid-column:span 2}
-  /* The plan is five rows of prose next to two tiles of three lines each. Stretched
-     into one row the short pair inflate into dead space, which looks worse than the
-     raggedness it was fixing. So the plan takes a narrow column two rows tall and the
-     other two stack beside it — the row fills, nothing is padded out to match. */
-  .bento > .t-plan{grid-column:span 3;grid-row:span 2}
-  .bento > .t-clo, .bento > .t-turn{grid-column:span 5}}
-
-/* ── the tile ───────────────────────────────────────────────────────────── */
-.tl{position:relative;overflow:hidden;border-radius:18px;padding:14px 15px 15px;display:flex;flex-direction:column;
-  background:linear-gradient(160deg,rgba(255,255,255,.055),rgba(255,255,255,.02));
-  border:1px solid color-mix(in srgb, var(--acc) 42%, var(--ss-border,#2a3142));
-  box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 12px 30px -18px rgba(0,0,0,.9);
-  transition:transform .16s var(--ss-ease,cubic-bezier(.2,.7,.3,1)),border-color .16s}
-.tl::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
-  background:radial-gradient(125% 85% at 12% 122%, var(--acc) 0%, transparent 66%);opacity:.30}
-.tl > *{position:relative;z-index:1}
-.k{display:block;font:600 .68rem/1 var(--ss-mono,ui-monospace,monospace);letter-spacing:.16em;
-  text-transform:uppercase;color:var(--acc);margin:0 0 .55rem}
-
-/* hero */
-.hero{--acc:var(--ss-cyan,#00e5ff)}
-.hero .eyebrow{font:600 .7rem/1 var(--ss-mono,ui-monospace,monospace);letter-spacing:.15em;
-  text-transform:uppercase;color:var(--ss-faint,#74809a)}
-.hero h1{font-family:var(--ss-display,"Syne",system-ui,sans-serif);font-size:clamp(1.5rem,3.4vw,2.5rem);
-  line-height:1.08;letter-spacing:-.02em;margin:.45rem 0 .2rem}
-.hero .when{color:var(--ss-mist,#9aabd0);font-size:.92rem;margin:0 0 1rem}
-.hero .slo{font-size:clamp(1.05rem,1.7vw,1.35rem);font-weight:600;line-height:1.42;margin:0;max-width:52rem}
-.hero .row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.1rem}
-
-button.b{cursor:pointer;font:600 .84rem/1 inherit;padding:.7rem 1.05rem;border-radius:10px;
-  border:1px solid var(--acc);background:transparent;color:var(--acc);transition:background .15s,color .15s}
-button.b:hover{background:var(--acc);color:var(--ss-void,#0d1322)}
-button.b.solid{background:var(--acc);color:var(--ss-void,#0d1322)}
-button.b.solid:hover{filter:brightness(1.12)}
-a.b{display:inline-block;text-decoration:none}
-
-/* success criteria */
-.sc{list-style:none;margin:0;padding:0}
-.sc li{border-bottom:1px solid var(--ss-border,#2a3142)}
-.sc li:last-child{border-bottom:0}
-.sc label{display:flex;gap:.65rem;align-items:flex-start;padding:.55rem 0;cursor:pointer;font-size:.93rem}
-.sc input{margin-top:.28rem;width:1.05rem;height:1.05rem;accent-color:var(--acc);flex:none}
-.sc input:checked + span{color:var(--ss-faint,#74809a);text-decoration:line-through}
-.prog{display:flex;align-items:center;gap:.6rem;margin-top:.7rem}
-.prog .bar{flex:1;height:6px;border-radius:99px;background:rgba(255,255,255,.09);overflow:hidden}
-.prog .bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .25s}
-.prog b{font:700 .78rem/1 var(--ss-mono,ui-monospace,monospace);color:var(--acc)}
-
-/* plan */
-.plan{list-style:none;margin:0;padding:0}
-.plan li{display:flex;gap:.75rem;padding:.5rem 0;border-bottom:1px solid var(--ss-border,#2a3142);font-size:.92rem}
-.plan li:last-child{border-bottom:0}
-.plan .m{flex:none;width:3.2rem;font:700 .8rem/1.55 var(--ss-mono,ui-monospace,monospace);color:var(--acc)}
-
-/* generic tile text */
-.tl p{margin:0 0 .7rem;font-size:.94rem}.tl p:last-child{margin:0}
-.tl .big{font-size:1.02rem;line-height:1.5}
-
-/* ── the lab ────────────────────────────────────────────────────────────── */
-.lab{--acc:var(--ss-green,#3effa0)}
-.lab .stage{background:rgba(0,0,0,.32);border:1px solid var(--ss-border,#2a3142);border-radius:12px;
-  padding:16px;min-height:0;height:clamp(150px,20vh,190px);display:flex}
-.lab .stage .fx{flex:1;display:flex;gap:10px;transition:all .28s var(--ss-ease,cubic-bezier(.2,.7,.3,1))}
-.lab .box{background:color-mix(in srgb,var(--acc) 30%,transparent);border:1px solid var(--acc);
-  border-radius:9px;padding:.7rem .9rem;font:700 .82rem/1.3 var(--ss-mono,ui-monospace,monospace);
-  color:var(--ss-bone,#e8ecf3);display:grid;place-items:center;transition:all .28s}
-.lab .box.b2{min-height:64px}.lab .box.b3{min-height:88px}
-.ctrls{margin-top:.9rem;display:grid;gap:.7rem}
-.ctrl .cn{font:600 .68rem/1 var(--ss-mono,ui-monospace,monospace);letter-spacing:.1em;text-transform:uppercase;
-  color:var(--ss-faint,#74809a);margin-bottom:.35rem}
-.seg{display:flex;flex-wrap:wrap;gap:.35rem}
-.seg button{cursor:pointer;font:600 .78rem/1 var(--ss-mono,ui-monospace,monospace);padding:.45rem .7rem;
-  border-radius:8px;border:1px solid var(--ss-border,#2a3142);background:transparent;color:var(--ss-mist,#9aabd0)}
-.seg button[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--ss-void,#0d1322)}
-.readout{margin-top:.9rem;background:#0b0f18;border:1px solid var(--ss-border,#2a3142);border-radius:10px;
-  padding:.8rem .9rem;font:.82rem/1.7 var(--ss-mono,ui-monospace,monospace);color:#cbd5e1;overflow-x:auto}
-.readout .p{color:var(--ss-peri,#818cf8)}.readout .v{color:var(--ss-green,#3effa0)}
-.axis{margin-top:.75rem;font-size:.87rem;color:var(--ss-mist,#9aabd0)}
-.axis b{color:var(--acc)}
-.slid{width:100%;accent-color:var(--acc)}
-
-/* ── modal ──────────────────────────────────────────────────────────────── */
-dialog{border:none;padding:0;background:transparent;max-width:min(46rem,94vw);width:100%}
-dialog::backdrop{background:rgba(6,9,16,.74)}
-.sheet{background:var(--ss-ink,#161d31);border:1px solid var(--ss-border,#2a3142);border-radius:18px;
-  padding:1.4rem 1.5rem;color:var(--ss-bone,#e8ecf3);max-height:84vh;overflow:auto}
-.sheet h3{font-family:var(--ss-display,"Syne",system-ui,sans-serif);font-size:1.25rem;margin:0 0 .8rem}
-.sheet p{font-size:.98rem;margin:0 0 .9rem}
-.sheet .x{position:sticky;top:0;float:right;cursor:pointer;background:transparent;border:1px solid var(--ss-border,#2a3142);
-  color:var(--ss-mist,#9aabd0);border-radius:8px;font:600 .75rem/1 var(--ss-mono,ui-monospace,monospace);padding:.45rem .6rem}
-.sheet img{width:100%;height:auto;border-radius:10px;border:1px solid var(--ss-border,#2a3142)}
-pre.code{background:#0b0f18;border:1px solid var(--ss-border,#2a3142);border-radius:10px;padding:1rem 1.1rem;
-  overflow-x:auto;font:.84rem/1.7 var(--ss-mono,ui-monospace,monospace);color:#e5e7eb;margin:.5rem 0;position:relative}
-pre.code b{color:var(--ss-peri,#818cf8);font-weight:400}
-.codewrap{position:relative}
-.codewrap .cp{position:absolute;top:.55rem;right:.55rem;cursor:pointer;border:1px solid #3b4252;background:#1c2230;
-  color:var(--ss-peri,#818cf8);font:600 .72rem/1 var(--ss-mono,ui-monospace,monospace);letter-spacing:.06em;
-  text-transform:uppercase;padding:.42rem .65rem;border-radius:6px}
-.codewrap .cp.ok{background:#064e3b;border-color:#10b981;color:#6ee7b7}
-.files{list-style:none;margin:.5rem 0 0;padding:0}
-.files li{padding:.5rem 0;border-top:1px solid var(--ss-border,#2a3142)}
-.files a{color:var(--acc);font:600 .9rem/1.5 var(--ss-mono,ui-monospace,monospace);text-decoration:none}
-.files span{display:block;color:var(--ss-faint,#74809a);font-size:.85rem;margin-top:.1rem}
-.who{display:flex;gap:.7rem;flex-wrap:wrap;margin:0 0 .8rem}
-.who label{flex:1 1 9rem;font:600 .7rem/1 var(--ss-mono,ui-monospace,monospace);letter-spacing:.08em;
-  text-transform:uppercase;color:var(--ss-faint,#74809a)}
-.who input{display:block;width:100%;margin-top:.35rem;padding:.55rem .65rem;font:inherit;color:var(--ss-bone,#e8ecf3);
-  background:rgba(0,0,0,.3);border:1px solid var(--ss-border,#2a3142);border-radius:8px}
-.who input:focus{outline:none;border-color:var(--acc)}
-.hint{color:var(--ss-faint,#74809a);font-size:.85rem;margin:.6rem 0 0}
-footer{max-width:96rem;margin:2rem auto 0;color:var(--ss-faint,#74809a);font-size:.82rem}
-
-/* ── JavaScript labs ────────────────────────────────────────────────────────
-   A JavaScript day has no box to push around; what it has is a console that talks back.
-   So these labs carry a small console, styled like the real one, and every lab's readout
-   is the exact code the student would type into script.js. */
-.lab .jsrow{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;width:100%}
-.lab .jsin{flex:1;min-width:10rem;padding:.65rem .8rem;border-radius:9px;border:1px solid var(--ss-border,#2a3142);
-  background:rgba(0,0,0,.35);color:var(--ss-bone,#e8ecf3);font:.95rem var(--ss-mono,ui-monospace,monospace)}
-.lab .jsin:focus{outline:none;border-color:var(--acc)}
-.lab .demo{font:700 .95rem/1 inherit;background:var(--acc);color:#0d1322;border:2px solid var(--acc);
-  border-radius:10px;padding:.75rem 1.2rem;cursor:pointer;transition:filter .15s,transform .1s}
-.lab .demo:hover{filter:brightness(1.12)}.lab .demo:active{transform:translateY(2px)}
-.lab .demo:focus-visible{outline:none;box-shadow:0 0 0 4px rgba(255,255,255,.35)}
-.lab .val{font:700 clamp(1.3rem,3vw,2.1rem)/1.15 var(--ss-display,system-ui,sans-serif);color:var(--ss-bone,#e8ecf3)}
-.lab .stage.col{flex-direction:column;align-items:flex-start;justify-content:center;gap:.8rem;height:auto;min-height:150px}
-.devcon{margin-top:.8rem;background:#050810;border:1px solid var(--ss-border,#2a3142);border-radius:10px;
-  min-height:4.6rem;max-height:9rem;overflow:auto;padding:.5rem .75rem;font:.8rem/1.6 var(--ss-mono,ui-monospace,monospace)}
-.devcon .hd{color:var(--ss-faint,#74809a);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:.25rem}
-.devcon .ok{color:#e5e7eb}.devcon .ok::before{content:"› ";color:var(--ss-faint,#74809a)}
-.devcon .err{color:#fca5a5;background:rgba(244,63,94,.12);border-radius:5px;padding:0 .35rem}
-
-/* ── Bell work ──────────────────────────────────────────────────────────── */
-.bellq{margin:.2rem 0 0;padding-left:1.4rem;font-size:clamp(1rem,1.5vw,1.2rem);font-weight:600;line-height:1.45}
-.bellq li{margin:.35rem 0;padding-left:.25rem}
-
-/* ── Ask Copilot Chat ───────────────────────────────────────────────────── */
-.t-prompt pre.code{white-space:pre-wrap}
-.t-prompt .rules{margin:.7rem 0 0;padding-left:1.15rem;font-size:.88rem;color:var(--ss-mist,#9aabd0)}
-.t-prompt .rules li{margin:.2rem 0}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <a class="back" href="../../">&larr; All coursework</a>
-  <div class="bento">
-    <section class="tl hero w4">
-      <div class="eyebrow">App Design 1 &middot; Week 8 &middot; Unit 03 — Make it interactive</div>
-      <h1>Add a button and wire the click</h1>
-      <p class="when">Wednesday, 16 September 2026</p>
-      <p class="slo">Put a real button on my page and make a click run my own code.</p>
-      <div class="row">
-        <button class="b solid" data-open="m-read" type="button">What am I learning?</button>
-        
-        <button class="b" data-open="m-files" type="button">Files &amp; terminal</button>
-      </div>
-    </section>
-    <section class="tl w4 t-bell" style="--acc:var(--ss-gold,#f5c842)">
-      <span class="k">Bell work — do this first</span>
-      <ol class="bellq"><li>Look at index.html in your project. What is the id of the button?</li><li>Which runs first: the line that adds the listener, or the code inside the function?</li></ol>
-      <p class="hint">Answer in your notes. We go over them together before anything else.</p>
-    </section>
-    <section class="tl lab w4" id="lab" data-lab="click">
-      <span class="k">Try it</span>
-      <div class="stage col">
-        <button class="demo" id="cbtn" type="button">Click me</button>
-        <p class="val" id="ctext" style="font-size:1.05rem;margin:0">Nothing has happened yet.</p>
-      </div>
-      <div class="ctrls">
-        <div class="ctrl"><div class="cn">event</div><div class="seg" data-prop="event">
-      <button type="button" data-v="click" aria-pressed="true">click</button><button type="button" data-v="dblclick" aria-pressed="false">dblclick</button><button type="button" data-v="mouseenter" aria-pressed="false">mouseenter</button>
-    </div></div>
-        <div class="ctrl"><div class="cn">does</div><div class="seg" data-prop="does">
-      <button type="button" data-v="log" aria-pressed="false">log a message</button><button type="button" data-v="text" aria-pressed="true">change the text</button><button type="button" data-v="colour" aria-pressed="false">change the colour</button>
-    </div></div>
-      </div>
-      <div class="readout" id="ro"></div>
-      <div class="devcon" id="cout"><div class="hd">Console</div></div>
-      <p class="axis" id="axis"></p>
-      <p class="hint">Pick an event and what it does, then use the button. The code underneath is exactly what goes in script.js — and it changes when you change the choices.</p>
-    </section>
-    <section class="tl">
-      <span class="k">You have met it when</span>
-      <ul class="sc"><li><label><input type="checkbox" data-sc="0"><span>I can say what the id on my button is for</span></label></li><li><label><input type="checkbox" data-sc="1"><span>I can find an element on the page with document.querySelector</span></label></li><li><label><input type="checkbox" data-sc="2"><span>I can write addEventListener with an event and a function</span></label></li><li><label><input type="checkbox" data-sc="3"><span>My click prints something in the console panel</span></label></li><li><label><input type="checkbox" data-sc="4"><span>My click changes something you can see on the page</span></label></li><li><label><input type="checkbox" data-sc="5"><span>I turned in my live link on Canvas</span></label></li></ul>
-      <div class="prog"><div class="bar"><i id="scbar"></i></div><b id="scnum">0/6</b></div>
-    </section>
-    <section class="tl t-plan" style="--acc:var(--ss-peri,#818cf8)">
-      <span class="k">Today's plan</span>
-      <ul class="plan"><li><span class="m">5m</span><span>Bell work: answer the questions in the Bell work box at the top of this page, in your notes.</span></li><li><span class="m">10m</span><span>Watch: three lines of JavaScript — find the button, listen for the click, change the page.</span></li><li><span class="m">8m</span><span>Together: we read the three lines out loud and say what each one does, in order.</span></li><li><span class="m">20m</span><span>You: open week-08/my-site/script.js, write the Day 2 lines, then change the message so it is about your topic.</span></li><li><span class="m">5m</span><span>Save point and exit: commit, push, click your button on the live link, then turn the link in on Canvas.</span></li></ul>
-    </section>
-    <section class="tl t-clo" style="--acc:var(--ss-gold,#f5c842)">
-      <span class="k">Course outcome</span><p>I can make a web page respond to the person using it — a click, a change, a page that remembers.</p>
-    </section>
-    <section class="tl t-turn" style="--acc:var(--ss-rose,#f43f5e)">
-      <span class="k">Turning it in</span><p>Nothing new to pull. Commit and push, open your live link and click your button there — the live one, not just the preview. Then turn in your live link on Canvas: your github.io address with /week-08/my-site/ on the end.</p>
-    </section>
-    <section class="tl w4 t-prompt" style="--acc:var(--ss-violet,#a78bfa)">
-      <span class="k">Ask Copilot Chat — explain my three lines</span>
-      <p>Paste your own code into the blank. Your job is to ask good questions — this one checks you understand what you wrote.</p>
-      <div class="codewrap"><button class="cp" type="button">Copy</button><pre class="code">I am learning JavaScript. Here are my Day 2 lines:
-<b>[PASTE YOUR THREE LINES]</b>
-Explain what each line does in one sentence each, like I am new to this.
-If a line is wrong, point at it and ask me a question that helps me find the problem.
-Then ask me one question to check I understood.</pre></div>
-      <ul class="rules"><li>Answer its question — that is how you know you understand it.</li><li>Ask a follow-up about any line that still does not make sense.</li></ul>
-    </section>
-  </div>
-  <footer>Your work stays on your machine. Nothing on this page sends anything anywhere.</footer>
-</div>
-
-  <dialog id="m-read"><div class="sheet"><button class="x" data-close type="button">Close</button>
-    <h3>What am I learning?</h3><p>Three lines today, and they are the three lines behind nearly every button on the internet.</p><p>The first finds the button. Every element can have an id, and document.querySelector(&quot;#action&quot;) means “find the thing whose id is action.” The # is what says id — leave it off and JavaScript finds nothing.</p><p>The second listens. addEventListener(&quot;click&quot;, function () { … }) means “when this is clicked, run the code inside the curly brackets.” Here is the part that surprises people: that code does not run when the page loads. It sits there waiting. It only runs when the click actually happens.</p><p>The third changes what you see. textContent is the words inside an element, and setting it swaps them for new ones. That is the moment your page responds to a person.</p></div></dialog>
-
-  
-
-  <dialog id="m-files"><div class="sheet"><button class="x" data-close type="button">Close</button>
-    <h3>Files &amp; terminal</h3>
-    <p>Everything for this week is already in your week folder.</p>
-
-    <h3 style="margin-top:1.3rem">Get the whole week — once</h3>
-    <p>The whole week comes down in one go — all four days and the project you build in. Run this once, on Tuesday, in the terminal at the bottom of your Codespace.</p>
-    <div class="codewrap"><button class="cp" type="button">Copy</button><pre class="code"><b># the whole week in one go — do this once</b>
-npx degit coltonsharp-dev/ALA2627-ASD-Coursework/week-08 week-08
-cd week-08/my-site
-python -m http.server 8000</pre></div>
-    <p>Wednesday to Friday there is nothing to pull. Your project is already in week-08/my-site — open it, start the preview with the last line, and keep going.</p>
-    <p class="hint">Terminal not co-operating? The Week 8 page has a Download button for the same project. Use it and keep going — do not lose a period to a command.</p>
-  </div></dialog>
-<script>
-var NL = String.fromCharCode(10);
-var RC = null;
-
-/* modals */
-document.querySelectorAll("[data-open]").forEach(function(b){
-  b.addEventListener("click", function(){
-    var d = document.getElementById(b.getAttribute("data-open"));
-    if (d && d.showModal) d.showModal();
-  });
-});
-document.querySelectorAll("[data-close]").forEach(function(b){
-  b.addEventListener("click", function(){ b.closest("dialog").close(); });
-});
-document.querySelectorAll("dialog").forEach(function(d){
-  d.addEventListener("click", function(e){ if (e.target === d) d.close(); });
-});
-
-/* success criteria progress */
-var scBoxes = [].slice.call(document.querySelectorAll("input[data-sc]"));
-var scBar = document.getElementById("scbar"), scNum = document.getElementById("scnum");
-function scSync(){
-  var n = scBoxes.filter(function(b){ return b.checked; }).length;
-  if (scBar) scBar.style.width = (scBoxes.length ? (n / scBoxes.length) * 100 : 0) + "%";
-  if (scNum) scNum.textContent = n + "/" + scBoxes.length;
-}
-scBoxes.forEach(function(b){ b.addEventListener("change", scSync); });
-scSync();
-
-/* copy buttons */
-document.querySelectorAll(".codewrap .cp").forEach(function(b){
-  b.addEventListener("click", function(){
-    var t = b.parentElement.querySelector("pre").innerText;
-    function done(){ b.textContent = "Copied"; b.classList.add("ok");
-      setTimeout(function(){ b.textContent = "Copy"; b.classList.remove("ok"); }, 1600); }
-    function fb(){ var r = document.createRange(); r.selectNodeContents(b.parentElement.querySelector("pre"));
-      var s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = "Press Ctrl+C";
-      setTimeout(function(){ b.textContent = "Copy"; }, 2200); }
-    if (navigator.clipboard) navigator.clipboard.writeText(t).then(done, fb); else fb();
-  });
-});
-
-/* ---- labs ---- */
-var fx = document.getElementById("fx"), ro = document.getElementById("ro"), axis = document.getElementById("axis");
-var state = {};
-function segWire(onChange){
-  document.querySelectorAll(".seg").forEach(function(seg){
-    var prop = seg.getAttribute("data-prop");
-    var pressed = seg.querySelector("[aria-pressed=true]");
-    state[prop] = pressed ? pressed.getAttribute("data-v") : null;
-    seg.querySelectorAll("button").forEach(function(btn){
-      btn.addEventListener("click", function(){
-        seg.querySelectorAll("button").forEach(function(o){ o.setAttribute("aria-pressed", "false"); });
-        btn.setAttribute("aria-pressed", "true");
-        state[prop] = btn.getAttribute("data-v");
-        onChange();
-      });
-    });
-  });
-  onChange();
-}
-function css(rules){
-  return rules.map(function(r){
-    return '<span class="p">' + r[0] + '</span>: <span class="v">' + r[1] + '</span>;';
-  }).join("<br>");
-}
-
-if (fx && document.querySelector('.seg[data-prop="flex-direction"]')) {
-  segWire(function(){
-    fx.style.flexDirection  = state["flex-direction"];
-    fx.style.justifyContent = state["justify-content"];
-    fx.style.alignItems     = state["align-items"];
-    ro.innerHTML = ".cards {<br>&nbsp;&nbsp;" + css([
-      ["display","flex"],["flex-direction",state["flex-direction"]],
-      ["justify-content",state["justify-content"]],["align-items",state["align-items"]]
-    ]).split("<br>").join("<br>&nbsp;&nbsp;") + "<br>}";
-    var col = state["flex-direction"] === "column";
-    axis.innerHTML = col
-      ? "Direction is <b>column</b>, so the main axis runs <b>down</b>. justify-content is now moving things <b>vertically</b> and align-items is moving them <b>across</b>. They swapped."
-      : "Direction is <b>row</b>, so the main axis runs <b>across</b>. justify-content moves things <b>horizontally</b>, align-items moves them <b>vertically</b>.";
-  });
-}
-
-if (fx && document.querySelector('.seg[data-prop="tool"]')) {
-  var b1 = document.getElementById("sb1"), b2 = document.getElementById("sb2"), b3 = document.getElementById("sb3");
-  segWire(function(){
-    var n = state["size"] + "px", tool = state["tool"];
-    fx.style.gap = tool === "gap" ? n : "0px";
-    [b1,b2,b3].forEach(function(b){
-      b.style.padding = tool === "padding" ? n : "0.7rem 0.9rem";
-      b.style.margin  = tool === "margin"  ? n : "0px";
-    });
-    ro.innerHTML = tool === "gap"
-      ? ".cards {<br>&nbsp;&nbsp;" + css([["display","flex"],["gap",n]]).split("<br>").join("<br>&nbsp;&nbsp;") + "<br>}"
-      : ".card {<br>&nbsp;&nbsp;" + css([[tool,n]]) + "<br>}";
-    axis.innerHTML = tool === "gap"
-      ? "<b>gap</b> sits between the boxes and adds nothing to the outside edges. It only works because the parent is a flex container."
-      : tool === "padding"
-        ? "<b>padding</b> is inside each box, so the boxes grow. The space between them has not changed."
-        : "<b>margin</b> is outside each box, so it pushes the neighbours away &mdash; and it also pushes against the container edge, which gap does not.";
-  });
-}
-
-if (document.getElementById("dbtn")) {
-  var ro2 = document.getElementById("ro");
-  ro2.innerHTML = ".btn:hover&nbsp;&nbsp;&nbsp;&nbsp;{ " + '<span class="p">filter</span>: <span class="v">brightness(1.15)</span>;' + " }<br>" +
-    ".btn:focus-visible { " + '<span class="p">box-shadow</span>: <span class="v">0 0 0 4px</span>;' + " }<br>" +
-    ".btn:active&nbsp;&nbsp;&nbsp;{ " + '<span class="p">transform</span>: <span class="v">translateY(2px)</span>;' + " }";
-}
-
-/* ---- JavaScript labs ---- */
-function escH(t){ return String(t).split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;"); }
-var cout = document.getElementById("cout");
-function logLine(text, bad){
-  if (!cout) return;
-  var row = document.createElement("div"); row.className = bad ? "err" : "ok"; row.textContent = text;
-  cout.appendChild(row); cout.scrollTop = cout.scrollHeight;
-}
-
-if (document.querySelector('[data-lab="console"]')) {
-  var cin = document.getElementById("cin");
-  var cline = function(){
-    var msg = cin.value;
-    return state["quotes"] === "forgot" ? "console.log(" + msg + ");" : 'console.log("' + msg + '");';
-  };
-  segWire(function(){ ro.innerHTML = '<span class="p">// script.js</span><br>' + escH(cline()); });
-  cin.addEventListener("input", function(){ ro.innerHTML = '<span class="p">// script.js</span><br>' + escH(cline()); });
-  document.getElementById("crun").addEventListener("click", function(){
-    var msg = cin.value;
-    if (state["quotes"] === "forgot") {
-      /* the real browser error, not a made-up one: one word is a name nobody defined;
-         several words are not even valid code, so the browser stops before running it */
-      var parts = msg.trim().split(" ").filter(function(w){ return w.length; });
-      if (parts.length > 1) {
-        logLine("Uncaught SyntaxError: missing ) after argument list", true);
-        axis.innerHTML = "Red. Without quotes, JavaScript reads <b>" + escH(parts[0]) + " " + escH(parts[1]) + "</b> as code, and that is not valid code &mdash; so nothing in the file runs. Quotes mean <b>this is text</b>.";
-      } else {
-        var word = parts[0] || "message";
-        logLine("Uncaught ReferenceError: " + word + " is not defined", true);
-        axis.innerHTML = "Red. Without quotes JavaScript thinks <b>" + escH(word) + "</b> is the name of something, and nothing has that name. Quotes mean <b>this is text</b>.";
-      }
-    } else {
-      logLine(msg, false);
-      axis.innerHTML = "It printed. That is JavaScript talking back to you &mdash; every day this week starts here.";
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Obsidian Control | Roblox moderation</title>
+  <style>
+    :root {
+      --bg: #090a0c;
+      --panel: #111316;
+      --panel-2: #17191d;
+      --line: #2a2d32;
+      --soft: #858a92;
+      --muted: #555a62;
+      --text: #f2f3f4;
+      --white: #fff;
+      --green: #b7f26d;
+      --red: #ff7777;
+      --yellow: #f2d06b;
+      --shadow: 0 20px 60px rgba(0, 0, 0, .28)
     }
-  });
-}
 
-if (document.querySelector('[data-lab="click"]')) {
-  var kb = document.getElementById("cbtn"), kt = document.getElementById("ctext");
-  var kcol = ["#3effa0", "#f5c842", "#818cf8", "#f43f5e"], kci = 0, kev = null;
-  var kdo = function(){
-    var d = state["does"];
-    if (d === "log") logLine("The button was used (" + state["event"] + ")", false);
-    if (d === "text") kt.textContent = "You did it. The page changed.";
-    if (d === "colour") { kci = (kci + 1) % kcol.length; kb.style.background = kcol[kci]; kb.style.borderColor = kcol[kci]; }
-  };
-  segWire(function(){
-    if (kev) kb.removeEventListener(kev, kdo);
-    kev = state["event"]; kb.addEventListener(kev, kdo);
-    kt.textContent = "Nothing has happened yet."; kb.style.background = ""; kb.style.borderColor = "";
-    var inner = state["does"] === "log" ? 'console.log("The button was used");'
-      : state["does"] === "text" ? 'output.textContent = "You did it. The page changed.";'
-      : 'button.style.background = "gold";';
-    var lines = ['const button = document.querySelector("#action");'];
-    if (state["does"] === "text") lines.push('const output = document.querySelector("#output");');
-    lines.push("");
-    lines.push('button.addEventListener("' + kev + '", function () {');
-    ro.innerHTML = lines.map(escH).join("<br>") + "<br>&nbsp;&nbsp;" + escH(inner) + "<br>" + escH("});");
-    axis.innerHTML = kev === "click" ? "<b>click</b> runs the function once the button is pressed and let go."
-      : kev === "dblclick" ? "<b>dblclick</b> needs two quick clicks. Try one click &mdash; nothing happens now."
-      : "<b>mouseenter</b> runs the moment the pointer arrives. No click at all.";
-  });
-}
+    * {
+      box-sizing: border-box
+    }
 
-if (document.querySelector('[data-lab="state"]')) {
-  var sb = document.getElementById("sbtn"), sv = document.getElementById("sval");
-  var count = 0, isOn = false, spot = 0, msgs = ["Go team!", "Practice starts at 3", "Big game Friday"];
-  var sdraw = function(){
-    var f = state["feature"], code = [];
-    if (f === "counter") { sv.textContent = String(count); sb.textContent = "Add one";
-      code = ["let count = " + count + ";", "", "function addOne() {", "  count = count + 1;", "  output.textContent = count;", "}", "", 'button.addEventListener("click", addOne);']; }
-    if (f === "toggle") { sv.textContent = isOn ? "ON" : "OFF"; sb.textContent = "Switch";
-      code = ["let isOn = " + isOn + ";", "", "function flip() {", "  isOn = !isOn;", '  output.textContent = isOn ? "ON" : "OFF";', "}", "", 'button.addEventListener("click", flip);']; }
-    if (f === "messages") { sv.textContent = msgs[spot]; sb.textContent = "Next";
-      code = ['let messages = ["Go team!", "Practice starts at 3", "Big game Friday"];', "let spot = " + spot + ";", "", "function next() {", "  spot = (spot + 1) % messages.length;", "  output.textContent = messages[spot];", "}", "", 'button.addEventListener("click", next);']; }
-    ro.innerHTML = code.map(function(l){ return escH(l).split("  ").join("&nbsp;&nbsp;"); }).join("<br>");
-  };
-  sb.addEventListener("click", function(){
-    var f = state["feature"];
-    if (f === "counter") count = count + 1;
-    if (f === "toggle") isOn = !isOn;
-    if (f === "messages") spot = (spot + 1) % msgs.length;
-    sdraw();
-    axis.innerHTML = "Look at the first line: the value changed. <b>That is a variable</b> &mdash; the page remembering something between clicks.";
-  });
-  segWire(sdraw);
-}
+    html {
+      background: var(--bg)
+    }
 
-/* receipt */
-var rcGo = document.getElementById("rc-go");
-if (rcGo) rcGo.addEventListener("click", function(){
-  var name = (document.getElementById("rc-name").value || "").trim();
-  var period = (document.getElementById("rc-period").value || "").trim();
-  var msg = document.getElementById("rc-msg");
-  if (!name) { msg.textContent = "Put your name in first — the receipt is no use without it."; return; }
-  var boxes = [].slice.call(document.querySelectorAll("input[data-rc]"));
-  var items = boxes.map(function(b){
-    return { done: b.checked, text: b.parentElement.querySelector("span").textContent.trim() };
-  });
-  var doneN = items.filter(function(i){ return i.done; }).length;
-  var L = [];
-  L.push("RECEIPT — " + RC.course);
-  L.push(RC.title);
-  L.push("Week " + RC.week + " · Day " + RC.day + " · " + RC.date);
-  L.push("");
-  L.push("Name:      " + name);
-  L.push("Period:    " + (period || "not given"));
-  L.push("Finished:  " + new Date().toLocaleString());
-  L.push("Completed: " + doneN + " of " + items.length);
-  L.push("");
-  L.push("WHAT I DID");
-  items.forEach(function(i, n){ L.push("  [" + (i.done ? "x" : " ") + "] " + (n + 1) + ". " + i.text); });
-  L.push("");
-  var basis = name + "|" + period + "|" + RC.day + "|" + items.map(function(i){ return i.done ? 1 : 0; }).join("");
-  var h = 0; for (var k = 0; k < basis.length; k++) { h = ((h << 5) - h + basis.charCodeAt(k)) | 0; }
-  L.push("check: " + (h >>> 0).toString(36).toUpperCase());
-  L.push("(If this line is edited it will not match the answers above.)");
-  var a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([L.join(NL)], { type: "text/plain" }));
-  a.download = RC.file + "-" + name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + ".txt";
-  document.body.appendChild(a); a.click(); a.remove();
-  msg.textContent = "Downloaded. Upload that file to the assignment.";
-});
-</script>
+    body {
+      margin: 0;
+      color: var(--text);
+      font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: .01em
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit
+    }
+
+    button {
+      cursor: pointer
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 236px minmax(0, 1fr);
+      min-height: 100vh
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--line);
+      padding: 25px 16px 18px;
+      display: flex;
+      flex-direction: column;
+      background: #0d0e10
+    }
+
+    .brand {
+      display: flex;
+      gap: 11px;
+      align-items: center;
+      padding: 0 11px 30px
+    }
+
+    .mark {
+      width: 31px;
+      height: 31px;
+      background: var(--white);
+      color: #0b0c0e;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      font-size: 15px;
+      clip-path: polygon(50% 0, 91% 24%, 91% 76%, 50% 100%, 9% 76%, 9% 24%)
+    }
+
+    .brand strong {
+      font-size: 15px;
+      letter-spacing: .13em;
+      text-transform: uppercase
+    }
+
+    .brand small {
+      display: block;
+      color: var(--soft);
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      margin-top: 1px
+    }
+
+    .nav-label {
+      padding: 0 11px;
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase
+    }
+
+    .nav {
+      display: grid;
+      gap: 4px
+    }
+
+    .nav button {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #aeb2b8;
+      text-align: left;
+      padding: 10px 11px;
+      border-radius: 6px
+    }
+
+    .nav button:hover {
+      background: var(--panel-2);
+      color: var(--text)
+    }
+
+    .nav button.active {
+      background: #202328;
+      border-color: #30343a;
+      color: var(--white)
+    }
+
+    .nav .icon {
+      width: 17px;
+      color: #7e838b;
+      text-align: center;
+      font-size: 15px
+    }
+
+    .nav button.active .icon {
+      color: var(--green)
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      border-top: 1px solid var(--line);
+      padding: 15px 11px 0
+    }
+
+    .server {
+      display: flex;
+      gap: 9px;
+      align-items: center;
+      font-size: 12px
+    }
+
+    .server-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      box-shadow: 0 0 12px rgba(183, 242, 109, .7)
+    }
+
+    .server span {
+      display: block;
+      color: var(--soft);
+      font-size: 11px
+    }
+
+    .sidebar-foot {
+      color: var(--muted);
+      font-size: 10px;
+      margin-top: 16px
+    }
+
+    .main {
+      min-width: 0;
+      padding: 25px clamp(20px, 4vw, 58px) 50px
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 32px
+    }
+
+    .crumb {
+      color: var(--soft);
+      font-size: 12px
+    }
+
+    .crumb b {
+      color: var(--text);
+      font-weight: 600
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 9px
+    }
+
+    .icon-btn,
+    .btn {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 5px;
+      padding: 9px 13px
+    }
+
+    .icon-btn {
+      width: 38px;
+      padding: 8px;
+      color: var(--soft);
+      font-size: 16px
+    }
+
+    .icon-btn:hover,
+    .btn:hover {
+      border-color: #555b63;
+      background: #1b1e22
+    }
+
+    .btn.primary {
+      background: var(--white);
+      border-color: var(--white);
+      color: #0a0b0c;
+      font-weight: 700
+    }
+
+    .btn.primary:hover {
+      background: #dcdfe2
+    }
+
+    .page-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 26px
+    }
+
+    .eyebrow {
+      color: var(--green);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      margin-bottom: 7px
+    }
+
+    .page-head h1 {
+      font-size: 30px;
+      line-height: 1.1;
+      letter-spacing: -.035em;
+      margin: 0
+    }
+
+    .page-head p {
+      color: var(--soft);
+      margin: 8px 0 0
+    }
+
+    .head-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 24px
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 17px 18px;
+      min-height: 104px
+    }
+
+    .stat .label {
+      color: var(--soft);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .1em
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 28px;
+      letter-spacing: -.04em;
+      margin-top: 11px
+    }
+
+    .stat .delta {
+      color: var(--green);
+      font-size: 11px;
+      margin-left: 5px;
+      letter-spacing: 0
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(280px, .85fr);
+      gap: 12px
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 6px;
+      box-shadow: var(--shadow)
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      padding: 17px 18px;
+      border-bottom: 1px solid var(--line)
+    }
+
+    .panel-head h2 {
+      font-size: 14px;
+      margin: 0;
+      font-weight: 650
+    }
+
+    .panel-head span,
+    .panel-head a {
+      font-size: 11px;
+      color: var(--soft)
+    }
+
+    .panel-body {
+      padding: 18px
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 13px
+    }
+
+    .search {
+      position: relative;
+      flex: 1 1 190px
+    }
+
+    .search input {
+      width: 100%;
+      padding-left: 32px
+    }
+
+    .search span {
+      position: absolute;
+      left: 11px;
+      top: 8px;
+      color: var(--muted)
+    }
+
+    input,
+    select,
+    textarea {
+      background: #0b0c0e;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 9px 10px;
+      outline: 0
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #848a92
+    }
+
+    select {
+      min-width: 120px
+    }
+
+    .table-wrap {
+      overflow: auto
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 610px
+    }
+
+    .table th {
+      color: var(--muted);
+      font-size: 10px;
+      text-align: left;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 0 10px 9px
+    }
+
+    .table td {
+      border-top: 1px solid #24272b;
+      padding: 12px 10px;
+      vertical-align: middle;
+      color: #c9ccd0;
+      font-size: 12px
+    }
+
+    .table td:first-child,
+    .table th:first-child {
+      padding-left: 0
+    }
+
+    .table td:last-child,
+    .table th:last-child {
+      padding-right: 0
+    }
+
+    .actor {
+      display: flex;
+      align-items: center;
+      gap: 9px
+    }
+
+    .avatar {
+      width: 27px;
+      height: 27px;
+      display: grid;
+      place-items: center;
+      border-radius: 4px;
+      background: #292d33;
+      color: var(--white);
+      font-size: 10px;
+      font-weight: 800
+    }
+
+    .actor strong {
+      display: block;
+      color: var(--text);
+      font-size: 12px
+    }
+
+    .actor small {
+      display: block;
+      color: var(--muted);
+      font-size: 10px
+    }
+
+    .event {
+      color: var(--text);
+      font-weight: 600
+    }
+
+    .tag {
+      display: inline-block;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      padding: 3px 6px;
+      color: var(--soft);
+      font-size: 10px
+    }
+
+    .tag.mod {
+      color: var(--green);
+      border-color: #40552d
+    }
+
+    .tag.warn {
+      color: var(--yellow);
+      border-color: #5a4d25
+    }
+
+    .tag.ban {
+      color: var(--red);
+      border-color: #633737
+    }
+
+    .time {
+      color: var(--muted) !important;
+      white-space: nowrap
+    }
+
+    .announcement {
+      display: flex;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line)
+    }
+
+    .announcement:first-child {
+      padding-top: 0
+    }
+
+    .announcement:last-child {
+      border-bottom: 0;
+      padding-bottom: 0
+    }
+
+    .announce-mark {
+      width: 29px;
+      height: 29px;
+      flex: none;
+      border: 1px solid #4c4f55;
+      color: var(--white);
+      display: grid;
+      place-items: center;
+      border-radius: 4px
+    }
+
+    .announcement h3 {
+      font-size: 12px;
+      margin: 0 0 3px
+    }
+
+    .announcement p {
+      color: var(--soft);
+      font-size: 11px;
+      margin: 0
+    }
+
+    .announcement time {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      margin-top: 5px
+    }
+
+    .quick {
+      display: grid;
+      gap: 8px
+    }
+
+    .quick .btn {
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center
+    }
+
+    .quick .arrow {
+      color: var(--muted)
+    }
+
+    .webhook-note {
+      margin-top: 12px;
+      padding: 12px;
+      background: #0c0e10;
+      border-left: 2px solid var(--green);
+      color: var(--soft);
+      font-size: 11px
+    }
+
+    .webhook-note b {
+      color: var(--text)
+    }
+
+    .view {
+      display: none
+    }
+
+    .view.active {
+      display: block
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px
+    }
+
+    .field {
+      display: grid;
+      gap: 6px
+    }
+
+    .field.full {
+      grid-column: 1/-1
+    }
+
+    .field label {
+      font-size: 11px;
+      color: var(--soft);
+      text-transform: uppercase;
+      letter-spacing: .09em
+    }
+
+    .field textarea {
+      min-height: 105px;
+      resize: vertical
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 17px
+    }
+
+    .empty {
+      padding: 30px;
+      text-align: center;
+      color: var(--soft)
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, .65fr);
+      gap: 12px
+    }
+
+    .help {
+      color: var(--soft);
+      font-size: 12px;
+      margin: 0 0 18px
+    }
+
+    .status-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--soft);
+      font-size: 11px;
+      margin-top: 12px
+    }
+
+    .status-line i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--muted)
+    }
+
+    .status-line i.ok {
+      background: var(--green)
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      background: var(--white);
+      color: #090a0c;
+      padding: 11px 14px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: var(--shadow);
+      transform: translateY(20px);
+      opacity: 0;
+      pointer-events: none;
+      transition: .2s
+    }
+
+    .toast.show {
+      transform: none;
+      opacity: 1
+    }
+
+    +@media(max-width:900px) {
+      .app {
+        grid-template-columns: 70px minmax(0, 1fr)
+      }
+
+      .sidebar {
+        padding: 20px 10px
+      }
+
+      .brand {
+        padding: 0 9px 29px
+      }
+
+      .brand-copy,
+      .nav-label,
+      .nav button span:not(.icon),
+      .server-copy,
+      .sidebar-foot {
+        display: none
+      }
+
+      .brand {
+        justify-content: center
+      }
+
+      .nav button {
+        justify-content: center
+      }
+
+      .sidebar-bottom {
+        padding: 15px 0 0
+      }
+
+      .server {
+        justify-content: center
+      }
+
+      .grid,
+      .settings-grid {
+        grid-template-columns: 1fr
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr)
+      }
+    }
+
+    +@media(max-width:600px) {
+      .main {
+        padding: 18px 13px 35px
+      }
+
+      .topbar {
+        margin-bottom: 25px
+      }
+
+      .page-head {
+        display: block
+      }
+
+      .head-actions {
+        margin-top: 17px
+      }
+
+      .page-head h1 {
+        font-size: 26px
+      }
+
+      .stats {
+        gap: 7px
+      }
+
+      .stat {
+        padding: 14px 12px;
+        min-height: 90px
+      }
+
+      .stat strong {
+        font-size: 23px;
+        margin-top: 8px
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr
+      }
+
+      .field.full {
+        grid-column: auto
+      }
+
+      .top-actions .btn {
+        padding: 8px
+      }
+
+      .panel-head,
+      .panel-body {
+        padding: 14px
+      }
+
+      .topbar {
+        align-items: flex-start
+      }
+    }
+
+    +
+  </style>
+  +
+</head>
++
+
+<body>
+  + <div class="app">
+    + <aside class="sidebar">
+      + <div class="brand">
+        <div class="mark">O</div>
+        <div class="brand-copy"><strong>Obsidian</strong><small>Control center</small></div>
+      </div>
+      + <p class="nav-label">Workspace</p>
+      + <nav class="nav" aria-label="Main navigation">
+        + <button class="active" data-view="overview"><span class="icon">◈</span><span>Overview</span></button>
+        + <button data-view="logs"><span class="icon">≡</span><span>Mod logs</span></button>
+        + <button data-view="announcements"><span class="icon">□</span><span>Announcements</span></button>
+        + <button data-view="bans"><span class="icon">⊘</span><span>Bans &amp; warnings</span></button>
+        + <button data-view="settings"><span class="icon">⚙</span><span>Webhook settings</span></button>
+        + </nav>
+      + <div class="sidebar-bottom">
+        <div class="server"><i class="server-dot"></i>
+          <div class="server-copy"><b>Roblox server</b><span>Connected locally</span></div>
+        </div>
+        <div class="sidebar-foot">v0.1 · Private admin tool</div>
+      </div>
+      + </aside>
+    + <main class="main">
+      + <div class="topbar">
+        <div class="crumb">Workspace / <b id="crumb">Overview</b></div>
+        <div class="top-actions"><button class="icon-btn" title="Search" aria-label="Search">⌕</button><button
+            class="btn" id="refresh" type="button">Refresh data</button></div>
+      </div>
+      + <section class="view active" id="overview">
+        + <div class="page-head">
+          <div>
+            <div class="eyebrow">Live moderation workspace</div>
+            <h1>Good evening, admin.</h1>
+            <p>Keep your community clean, informed, and accountable.</p>
+          </div>
+          <div class="head-actions"><button class="btn" data-go="announcements" type="button">New
+              announcement</button><button class="btn primary" data-go="logs" type="button">＋ Log action</button></div>
+        </div>
+        + <div class="stats">
+          <div class="stat"><span class="label">Actions today</span><strong id="stat-actions">24 <span
+                class="delta">+12%</span></strong></div>
+          <div class="stat"><span class="label">Active bans</span><strong id="stat-bans">18</strong></div>
+          <div class="stat"><span class="label">Open reports</span><strong>07 <span class="delta">-3</span></strong>
+          </div>
+          <div class="stat"><span class="label">Server health</span><strong>99.8<span
+                style="font-size:15px">%</span></strong></div>
+        </div>
+        + <div class="grid">
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Recent moderation activity</h2><a href="#" data-go="logs">View all →</a>
+            </div>
+            <div class="panel-body">
+              <div class="filters">
+                <div class="search"><span>⌕</span><input id="log-search" type="search"
+                    placeholder="Search player or action"></div><select id="log-filter">
+                  <option value="all">All actions</option>
+                  <option value="warn">Warnings</option>
+                  <option value="ban">Bans</option>
+                  <option value="kick">Kicks</option>
+                  <option value="note">Notes</option>
+                </select>
+              </div>
+              <div class="table-wrap">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Moderator</th>
+                      <th>Action</th>
+                      <th>Player</th>
+                      <th>Reason</th>
+                      <th>When</th>
+                    </tr>
+                  </thead>
+                  <tbody id="log-table"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+          <div class="side-stack">
+            <section class="panel">
+              <div class="panel-head">
+                <h2>Latest announcements</h2><a href="#" data-go="announcements">Manage →</a>
+              </div>
+              <div class="panel-body" id="announcement-list"></div>
+            </section>
+            <section class="panel">
+              <div class="panel-head">
+                <h2>Quick actions</h2><span>Admin tools</span>
+              </div>
+              <div class="panel-body quick"><button class="btn" data-go="bans" type="button">Review active bans <span
+                    class="arrow">→</span></button><button class="btn" data-go="announcements" type="button">Post an
+                  announcement <span class="arrow">→</span></button><button class="btn" data-go="settings"
+                  type="button">Configure webhook <span class="arrow">→</span></button>
+                <div class="webhook-note"><b>Webhook:</b> <span id="webhook-state">Not configured</span></div>
+              </div>
+            </section>
+          </div>
+        </div>
+        + </section>
+      + <section class="view" id="logs">
+        <div class="page-head">
+          <div>
+            <div class="eyebrow">Audit trail</div>
+            <h1>Moderation logs</h1>
+            <p>Every action, with a reason attached.</p>
+          </div><button class="btn primary" data-modal="log-modal" type="button">＋ Add log entry</button>
+        </div>
+        <section class="panel">
+          <div class="panel-body">
+            <div class="filters">
+              <div class="search"><span>⌕</span><input id="all-log-search" type="search"
+                  placeholder="Search the audit trail"></div><select id="all-log-filter">
+                <option value="all">All actions</option>
+                <option value="warn">Warnings</option>
+                <option value="ban">Bans</option>
+                <option value="kick">Kicks</option>
+                <option value="note">Notes</option>
+              </select>
+            </div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Moderator</th>
+                    <th>Action</th>
+                    <th>Player</th>
+                    <th>Reason</th>
+                    <th>When</th>
+                  </tr>
+                </thead>
+                <tbody id="all-log-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </section>
+      + <section class="view" id="announcements">
+        <div class="page-head">
+          <div>
+            <div class="eyebrow">Community comms</div>
+            <h1>Announcements</h1>
+            <p>Send clear updates to everyone in the server.</p>
+          </div><button class="btn primary" data-modal="announce-modal" type="button">＋ New announcement</button>
+        </div>
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Published announcements</h2><span>Newest first</span>
+          </div>
+          <div class="panel-body" id="all-announcements"></div>
+        </section>
+      </section>
+      + <section class="view" id="bans">
+        <div class="page-head">
+          <div>
+            <div class="eyebrow">Enforcement</div>
+            <h1>Bans &amp; warnings</h1>
+            <p>Review player restrictions and their expiration.</p>
+          </div><button class="btn primary" data-modal="ban-modal" type="button">＋ Add restriction</button>
+        </div>
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Active restrictions</h2><span id="ban-count">18 active</span>
+          </div>
+          <div class="panel-body">
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Player</th>
+                    <th>Type</th>
+                    <th>Reason</th>
+                    <th>Moderator</th>
+                    <th>Expires</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="ban-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </section>
+      + <section class="view" id="settings">
+        <div class="page-head">
+          <div>
+            <div class="eyebrow">Integrations</div>
+            <h1>Webhook settings</h1>
+            <p>Connect your moderation events to a private webhook.</p>
+          </div>
+        </div>
+        <div class="settings-grid">
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Webhook connection</h2><span>Stored in this browser</span>
+            </div>
+            <div class="panel-body">
+              <p class="help">Paste your Roblox or Discord-compatible webhook URL here. This demo saves it to local
+                storage on this device; a real server-side relay is needed to keep the URL secret and send events
+                reliably.</p>
+              <div class="field"><label for="webhook-url">Webhook URL</label><input id="webhook-url" type="url"
+                  placeholder="https://..." autocomplete="off"></div>
+              <div class="form-actions"><button class="btn" id="test-webhook" type="button">Send test
+                  event</button><button class="btn primary" id="save-webhook" type="button">Save webhook</button></div>
+              <div class="status-line"><i id="webhook-dot"></i><span id="webhook-status">No webhook configured</span>
+              </div>
+            </div>
+          </section>
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Event delivery</h2><span>Optional</span>
+            </div>
+            <div class="panel-body"><label><input type="checkbox" checked> Send moderation
+                actions</label><br><label><input type="checkbox" checked> Send announcements</label><br><label><input
+                  type="checkbox"> Send server health updates</label>
+              <div class="webhook-note" style="margin-top:20px"><b>Important:</b> Never post a webhook URL publicly.
+                Anyone with it may be able to send messages through your integration.</div>
+            </div>
+          </section>
+        </div>
+      </section>
+      + </main>
+    + </div>
+  + <dialog id="log-modal">
+    <form method="dialog" class="modal-form" id="log-form">
+      <div class="panel-head">
+        <h2>Add moderation log</h2><button class="icon-btn" value="cancel" aria-label="Close">×</button>
+      </div>
+      <div class="panel-body">
+        <div class="form-grid">
+          <div class="field"><label for="log-player">Player name</label><input id="log-player" required
+              placeholder="Roblox username"></div>
+          <div class="field"><label for="log-action">Action</label><select id="log-action">
+              <option value="warn">Warning</option>
+              <option value="kick">Kick</option>
+              <option value="ban">Ban</option>
+              <option value="note">Note</option>
+            </select></div>
+          <div class="field full"><label for="log-reason">Reason</label><textarea id="log-reason" required
+              placeholder="What happened?"></textarea></div>
+        </div>
+        <div class="form-actions"><button class="btn" value="cancel">Cancel</button><button class="btn primary"
+            value="default">Save log</button></div>
+      </div>
+    </form>
+  </dialog>
+  + <dialog id="announce-modal">
+    <form method="dialog" class="modal-form" id="announce-form">
+      <div class="panel-head">
+        <h2>New announcement</h2><button class="icon-btn" value="cancel" aria-label="Close">×</button>
+      </div>
+      <div class="panel-body">
+        <div class="form-grid">
+          <div class="field full"><label for="announce-title">Title</label><input id="announce-title" required
+              placeholder="Short, clear headline"></div>
+          <div class="field full"><label for="announce-body">Message</label><textarea id="announce-body" required
+              placeholder="Tell players what they need to know."></textarea></div>
+        </div>
+        <div class="form-actions"><button class="btn" value="cancel">Cancel</button><button class="btn primary"
+            value="default">Publish announcement</button></div>
+      </div>
+    </form>
+  </dialog>
+  + <dialog id="ban-modal">
+    <form method="dialog" class="modal-form" id="ban-form">
+      <div class="panel-head">
+        <h2>Add restriction</h2><button class="icon-btn" value="cancel" aria-label="Close">×</button>
+      </div>
+      <div class="panel-body">
+        <div class="form-grid">
+          <div class="field"><label for="ban-player">Player name</label><input id="ban-player" required
+              placeholder="Roblox username"></div>
+          <div class="field"><label for="ban-type">Type</label><select id="ban-type">
+              <option>Temporary ban</option>
+              <option>Permanent ban</option>
+              <option>Warning</option>
+            </select></div>
+          <div class="field full"><label for="ban-reason">Reason</label><textarea id="ban-reason" required
+              placeholder="Reason for this restriction"></textarea></div>
+        </div>
+        <div class="form-actions"><button class="btn" value="cancel">Cancel</button><button class="btn primary"
+            value="default">Save restriction</button></div>
+      </div>
+    </form>
+  </dialog>
+  + <div class="toast" id="toast" role="status"></div>
+  +
+  <script>
+    +    const logs = [{ mod: 'Nova', initials: 'NO', action: 'warn', player: 'Builderman', reason: 'Chat spam', when: '2 min ago' }, { mod: 'Kairo', initials: 'KA', action: 'ban', player: 'xXShadowXx', reason: 'Exploiting', when: '18 min ago' }, { mod: 'Nova', initials: 'NO', action: 'kick', player: 'PixelPilot', reason: 'Ignoring staff', when: '41 min ago' }, { mod: 'Mika', initials: 'MI', action: 'note', player: 'CoolBuilder', reason: 'Appeal reviewed', when: '1 hr ago' }, { mod: 'Mika', initials: 'MI', action: 'warn', player: 'LavaLamp', reason: 'Harassment', when: '2 hrs ago' }];
+    +    const bans = [{ player: 'xXShadowXx', type: 'Permanent ban', reason: 'Exploiting', mod: 'Kairo', expires: 'Never' }, { player: 'ToxicToast', type: 'Temporary ban', reason: 'Repeated harassment', mod: 'Nova', expires: 'Oct 02, 2026' }, { player: 'JellyBean', type: 'Warning', reason: 'Advertising', mod: 'Mika', expires: 'Oct 01, 2026' }, { player: 'brickmaster', type: 'Temporary ban', reason: 'Glitch abuse', mod: 'Kairo', expires: 'Sep 24, 2026' }];
+    +    const announcements = [{ title: 'Double XP weekend', body: 'Double XP is live through Sunday at midnight. Good luck out there.', time: 'Today, 5:20 PM' }, { title: 'Trading rules updated', body: 'Please review the updated trading rules before opening a ticket.', time: 'Yesterday, 11:02 AM' }, { title: 'Patch 1.4 is live', body: 'New map changes, smoother vehicles, and several bug fixes are now live.', time: 'Sep 14, 2026' }];
+    +    const $ = id => document.getElementById(id); const toast = message => { $('toast').textContent = message; $('toast').classList.add('show'); setTimeout(() => $('toast').classList.remove('show'), 2200) }; const label = action => ({ warn: 'Warning', ban: 'Ban', kick: 'Kick', note: 'Note' }[action] || action);
+    +    function renderLogs(target, query = '', filter = 'all') { const rows = logs.filter(log => (filter === 'all' || log.action === filter) && `${log.mod} ${log.player} ${log.reason}`.toLowerCase().includes(query.toLowerCase())); $(target).innerHTML = rows.length ? rows.map(log => `<tr><td><div class="actor"><span class="avatar">${log.initials}</span><span><strong>${log.mod}</strong><small>Moderator</small></span></div></td><td><span class="tag ${log.action === 'ban' ? 'ban' : log.action === 'warn' ? 'warn' : log.action === 'kick' ? 'mod' : ''}">${label(log.action)}</span></td><td class="event">${log.player}</td><td>${log.reason}</td><td class="time">${log.when}</td></tr>`).join('') : '<tr><td colspan="5" class="empty">No matching moderation events.</td></tr>' }
+      + function renderAnnouncements() { $('announcement-list').innerHTML = announcements.slice(0, 3).map(item => `<article class="announcement"><div class="announce-mark">!</div><div><h3>${item.title}</h3><p>${item.body}</p><time>${item.time}</time></div></article>`).join(''); $('all-announcements').innerHTML = announcements.map(item => `<article class="announcement"><div class="announce-mark">!</div><div><h3>${item.title}</h3><p>${item.body}</p><time>${item.time}</time></div></article>`).join('') }
+      + function renderBans() { $('ban-table').innerHTML = bans.map((ban, index) => `<tr><td class="event">${ban.player}</td><td><span class="tag ${ban.type.includes('Warning') ? 'warn' : 'ban'}">${ban.type}</span></td><td>${ban.reason}</td><td>${ban.mod}</td><td class="time">${ban.expires}</td><td><button class="icon-btn revoke" data-index="${index}" title="Revoke restriction" aria-label="Revoke restriction">×</button></td></tr>`).join(''); $('ban-count').textContent = `${bans.length} active`; $('stat-bans').textContent = String(14 + bans.length) }
+      + function showView(view) { document.querySelectorAll('.view').forEach(item => item.classList.toggle('active', item.id === view)); document.querySelectorAll('.nav button').forEach(item => item.classList.toggle('active', item.dataset.view === view)); $('crumb').textContent = view === 'logs' ? 'Mod logs' : view === 'bans' ? 'Bans & warnings' : view[0].toUpperCase() + view.slice(1); window.scrollTo(0, 0) }
+      + document.querySelectorAll('[data-view],[data-go]').forEach(button => button.addEventListener('click', event => { event.preventDefault(); showView(button.dataset.view || button.dataset.go) })); document.querySelectorAll('[data-modal]').forEach(button => button.addEventListener('click', () => $(button.dataset.modal).showModal()));
+    +    $('log-search').addEventListener('input', event => renderLogs('log-table', event.target.value, $('log-filter').value)); $('log-filter').addEventListener('change', event => renderLogs('log-table', $('log-search').value, event.target.value)); $('all-log-search').addEventListener('input', event => renderLogs('all-log-table', event.target.value, $('all-log-filter').value)); $('all-log-filter').addEventListener('change', event => renderLogs('all-log-table', $('all-log-search').value, event.target.value));
+    +    $('log-form').addEventListener('submit', event => { event.preventDefault(); logs.unshift({ mod: 'You', initials: 'YO', action: $('log-action').value, player: $('log-player').value, reason: $('log-reason').value, when: 'Just now' }); renderLogs('log-table'); renderLogs('all-log-table'); $('stat-actions').innerHTML = `${20 + logs.length}<span class="delta"> +12%</span>`; $('log-modal').close(); event.target.reset(); toast('Moderation log saved') }); $('announce-form').addEventListener('submit', event => { event.preventDefault(); announcements.unshift({ title: $('announce-title').value, body: $('announce-body').value, time: 'Just now' }); renderAnnouncements(); $('announce-modal').close(); event.target.reset(); toast('Announcement published') }); $('ban-form').addEventListener('submit', event => { event.preventDefault(); bans.unshift({ player: $('ban-player').value, type: $('ban-type').value, reason: $('ban-reason').value, mod: 'You', expires: $('ban-type').value === 'Permanent ban' ? 'Never' : 'Oct 01, 2026' }); renderBans(); $('ban-modal').close(); event.target.reset(); toast('Restriction added') }); $('ban-table').addEventListener('click', event => { const button = event.target.closest('.revoke'); if (!button) return; bans.splice(Number(button.dataset.index), 1); renderBans(); toast('Restriction revoked') });
+    +    const savedWebhook = localStorage.getItem('obsidian-webhook') || ''; $('webhook-url').value = savedWebhook; function syncWebhook() { const configured = Boolean($('webhook-url').value.trim()); $('webhook-state').textContent = configured ? 'Configured' : 'Not configured'; $('webhook-status').textContent = configured ? 'Webhook URL saved on this device' : 'No webhook configured'; $('webhook-dot').classList.toggle('ok', configured) } $('save-webhook').addEventListener('click', () => { const url = $('webhook-url').value.trim(); if (url && !/^https?:\/\//i.test(url)) { toast('Enter a full http(s) webhook URL'); return } localStorage.setItem('obsidian-webhook', url); syncWebhook(); toast(url ? 'Webhook saved locally' : 'Webhook cleared') }); $('test-webhook').addEventListener('click', () => { if (!$('webhook-url').value.trim()) { toast('Save a webhook URL first'); return } toast('Test event queued for your webhook') }); $('refresh').addEventListener('click', () => { toast('Dashboard data refreshed'); renderLogs('log-table'); renderLogs('all-log-table') }); renderLogs('log-table'); renderLogs('all-log-table'); renderAnnouncements(); renderBans(); syncWebhook();
+    +  </script>
+  +
 </body>
++
+
 </html>
