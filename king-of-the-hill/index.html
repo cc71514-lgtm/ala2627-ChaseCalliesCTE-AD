@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fruit Fall: King of the Hill</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <main class="game-shell">
+    <section class="game-card" aria-label="Fruit Fall game">
+      <canvas id="game-canvas" aria-label="A hill game where you dodge falling fruit"></canvas>
+
+      <header class="hud">
+        <div class="brand-lockup">
+          <span class="brand-kicker">Fruit Fall</span>
+          <h1>King of the Hill</h1>
+        </div>
+        <div class="stats" aria-live="polite">
+          <div class="stat"><span>Stage</span><strong id="stage">1 / 5</strong></div>
+          <div class="stat"><span>Score</span><strong id="score">0</strong></div>
+          <div class="stat"><span>Best</span><strong id="best">0</strong></div>
+        </div>
+      </header>
+
+      <div class="progress-wrap">
+        <div class="progress-label"><span>Climb progress</span><strong id="progress-text">0%</strong></div>
+        <div class="progress-track">
+          <div id="progress-bar" class="progress-bar"></div>
+        </div>
+      </div>
+
+      <div class="center-message" id="center-message">
+        <span class="message-kicker">Can you hold the summit?</span>
+        <h2>Stay on your feet.</h2>
+        <p>WASD to move. Move your mouse to look around.</p>
+        <button id="start-btn" type="button">Start climbing</button>
+      </div>
+
+      <footer class="controls">
+        <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Move</span>
+        <span><kbd>Mouse</kbd> Look</span>
+        <button id="pause-btn" class="pause-button" type="button" aria-label="Pause game">Pause</button>
+      </footer>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+
+</html>
