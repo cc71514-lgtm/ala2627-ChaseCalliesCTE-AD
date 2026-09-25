@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f4ed">
+  <meta name="description" content="Upload a geometry problem and get an AI-generated answer with steps.">
+  <title>Angle | Geometry Solver</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+
+<body>
+  <header class="topbar">
+    <a class="wordmark" href="./" aria-label="Angle home"><span class="wordmark-icon" aria-hidden="true">∠</span>
+      angle</a>
+    <div class="topbar-right">
+      <span class="subject-label">GEOMETRY DESK</span>
+      <button class="settings-button" id="settings-toggle" type="button" aria-expanded="true" aria-controls="key-panel">
+        <span class="key-icon" aria-hidden="true">⌘</span> API key
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow"><span class="eyebrow-line"></span> YOUR MATH, A LITTLE CLEARER</p>
+      <h1 id="page-title">Let’s solve<br><em>the shape of it.</em></h1>
+      <p class="intro-copy">Drop in a geometry problem. Get the answer, and the steps that make it make sense.</p>
+    </section>
+
+    <section class="solver" aria-label="Geometry problem solver">
+      <div class="problem-column">
+        <div class="column-heading">
+          <span class="step-number">01</span>
+          <h2>Your problem</h2>
+          <span class="optional-label">IMAGE OR TEXT</span>
+        </div>
+
+        <label class="upload-area" id="upload-area" for="image-input" tabindex="0">
+          <input id="image-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+          <span class="upload-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14.5v3A2.5 2.5 0 0 0 7.5 20h9a2.5 2.5 0 0 0 2.5-2.5v-3"
+                stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <span class="upload-title">Drop a screenshot here</span>
+          <span class="upload-subtitle">or <span class="browse-link">browse files</span> · PNG, JPG, WEBP</span>
+          <span class="upload-hint">You can also paste a screenshot</span>
+          <span class="image-preview-wrap" id="image-preview-wrap" hidden>
+            <img id="image-preview" alt="Preview of the uploaded geometry problem">
+            <span class="image-name" id="image-name"></span>
+            <button class="remove-image" id="remove-image" type="button" aria-label="Remove image">×</button>
+          </span>
+        </label>
+
+        <div class="or-divider"><span>OR TYPE IT OUT</span></div>
+        <label class="visually-hidden" for="problem-input">Describe or type your geometry problem</label>
+        <textarea id="problem-input" rows="4"
+          placeholder="e.g. A triangle has angles 42° and 71°. Find the third angle."></textarea>
+
+        <div class="key-panel" id="key-panel">
+          <div class="key-panel-heading">
+            <div><span class="key-dot" aria-hidden="true"></span><label for="api-key">Gemini API key</label></div>
+            <span class="session-label">THIS SESSION ONLY</span>
+          </div>
+          <div class="key-input-wrap">
+            <input id="api-key" type="password" placeholder="Paste your API key" autocomplete="off" spellcheck="false">
+            <button class="key-visibility" id="key-visibility" type="button" aria-label="Show API key"
+              title="Show API key">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M2.5 12s3.2-6 9.5-6 9.5 6 9.5 6-3.2 6-9.5 6-9.5-6-9.5-6Z" stroke="currentColor"
+                  stroke-width="1.5" />
+                <circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.5" />
+              </svg>
+            </button>
+          </div>
+          <p class="key-note">Needed for AI answers. <a href="https://aistudio.google.com/app/apikey" target="_blank"
+              rel="noreferrer">Get a key</a>. It is not saved; refresh to clear it.</p>
+        </div>
+
+        <button class="solve-button" id="solve-button" type="button">
+          <span class="solve-label">Solve problem</span>
+          <span class="solve-arrow" aria-hidden="true">↗</span>
+        </button>
+        <p class="privacy-note">Your image and question are sent to Google Gemini to generate an answer.</p>
+      </div>
+
+      <aside class="answer-column" aria-live="polite" aria-busy="false">
+        <div class="column-heading answer-heading">
+          <span class="step-number">02</span>
+          <h2>Solution</h2>
+          <span class="answer-mark" aria-hidden="true">✳</span>
+        </div>
+        <div class="answer-content" id="answer-content">
+          <div class="empty-state" id="empty-state">
+            <div class="diagram" aria-hidden="true">
+              <svg viewBox="0 0 230 170" fill="none">
+                <path d="M44 137 105 31l82 106H44Z" stroke="currentColor" stroke-width="1.4" />
+                <path d="m105 31 4 11 11-4" stroke="currentColor" stroke-width="1.2" />
+                <path d="M58 125a20 20 0 0 1 20-5m25-76a20 20 0 0 0 16 11m39 64a20 20 0 0 1 18-8" stroke="currentColor"
+                  stroke-width="1.2" />
+                <circle cx="44" cy="137" r="3" fill="currentColor" />
+                <circle cx="105" cy="31" r="3" fill="currentColor" />
+                <circle cx="187" cy="137" r="3" fill="currentColor" />
+                <text x="57" y="111">?</text><text x="110" y="58">x°</text><text x="146" y="126">42°</text>
+              </svg>
+            </div>
+            <p class="empty-title">Your answer<br>will land here.</p>
+            <p class="empty-copy">Add a screenshot or type your question to get started.</p>
+          </div>
+          <div class="loading-state" id="loading-state" hidden>
+            <span class="loading-spinner" aria-hidden="true"></span>
+            <p>Looking at your problem…</p>
+          </div>
+          <div class="solution-state" id="solution-state" hidden>
+            <p class="solution-kicker">WORKED SOLUTION</p>
+            <div class="solution-text" id="solution-text"></div>
+            <button class="copy-button" id="copy-button" type="button" title="Copy solution">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="8" y="8" width="11" height="12" rx="1.5" stroke="currentColor" stroke-width="1.5" />
+                <path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v10A1.5 1.5 0 0 0 5.5 17H8"
+                  stroke="currentColor" stroke-width="1.5" />
+              </svg>
+              <span>Copy solution</span>
+            </button>
+          </div>
+          <div class="error-state" id="error-state" hidden role="alert"></div>
+        </div>
+        <div class="answer-footer"><span>CHECK THE STEPS, NOT JUST THE RESULT</span><span class="footer-spark"
+            aria-hidden="true">✳</span></div>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="page-footer">
+    <span>ANGLE / GEOMETRY SOLVER</span>
+    <span>AI can make mistakes. Check your work.</span>
+  </footer>
+</body>
+
+</html>
