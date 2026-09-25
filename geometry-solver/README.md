@@ -1,13 +1,13 @@
 # Angle Geometry Solver
 
-A standalone static web app for uploading or pasting a geometry screenshot, typing a question, and requesting an answer with steps from Google Gemini.
+A standalone static web app that calculates common geometry answers directly in your browser. It makes no AI or network requests and needs no account, API key, or internet connection.
 
 ## Use it
 
 1. Open `index.html` in a browser or serve the repository with `python3 -m http.server 8000` and visit `/geometry-solver/`.
-2. Add a Gemini API key in the API key field. The key is held in memory for the current page only and cleared when the page reloads.
-3. Upload, drag in, or paste a geometry screenshot, or type the question, then select **Solve problem**.
+2. Type a supported geometry question and select **Solve problem**.
+3. You can upload, drag in, or paste a screenshot to keep the diagram visible as a reference. Type its measurements into the question field; the app does not read text or measurements from images.
 
-An internet connection and a valid Gemini API key with Gemini API access are required. The image and question are sent to Google's Gemini API. Do not use an API key you are not allowed to use, and check Google's current pricing and data policies before sending schoolwork or personal information. This static app has no server of its own and does not persist your API key.
+Supported calculations include triangle angle sums, complementary and supplementary angles, right-triangle hypotenuse and missing-leg calculations, triangle area, square and rectangle area/perimeter, circle area/circumference, and polygon interior angles. Enter the measurements and name the requested calculation clearly. Unsupported or ambiguous questions will ask for clarification instead of contacting an AI service.
 
-AI can misread diagrams or make mistakes. Verify the answer and steps.
+The calculations run locally in the browser. Verify the answer and steps.

@@ -98,25 +98,22 @@ textarea:focus-visible,
   font-size: 10px;
 }
 
-.settings-button {
-  padding: 7px 11px;
-  display: flex;
+.offline-pill {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  background: transparent;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.settings-button:hover {
-  border-color: var(--green);
-}
-
-.key-icon {
+  gap: 7px;
+  padding: 7px 10px;
   color: var(--green);
-  font-size: 15px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font: 500 9px/1 var(--mono);
+}
+
+.offline-pill span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #609360;
 }
 
 main {
@@ -360,88 +357,38 @@ input::placeholder {
   color: #9aa096;
 }
 
-.key-panel {
+.offline-note {
   margin-top: 18px;
-  padding: 12px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
   border: 1px solid var(--line);
   background: #f7f7f0;
 }
 
-.key-panel[hidden] {
-  display: none;
-}
-
-.key-panel-heading,
-.key-panel-heading>div {
-  display: flex;
-  align-items: center;
-}
-
-.key-panel-heading {
-  justify-content: space-between;
-  gap: 6px;
-  margin-bottom: 8px;
-}
-
-.key-panel-heading>div {
-  gap: 7px;
-}
-
-.key-panel-heading label {
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.key-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--orange);
-}
-
-.session-label {
-  color: #818a7f;
-  font-size: 8px;
-}
-
-.key-input-wrap {
-  position: relative;
-}
-
-.key-input-wrap input {
-  width: 100%;
-  height: 34px;
-  padding: 0 37px 0 10px;
-  border: 1px solid var(--line);
-  border-radius: 3px;
-  background: #fffefa;
-  font: 11px var(--mono);
-}
-
-.key-visibility {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 35px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-}
-
-.key-visibility svg {
+.offline-note-icon {
   width: 17px;
   height: 17px;
+  flex: 0 0 17px;
+  display: grid;
+  place-items: center;
+  color: var(--green);
+  border: 1px solid #bdcbb9;
+  border-radius: 50%;
+  font-size: 10px;
 }
 
-.key-note {
-  margin: 6px 0 0;
+.offline-note p {
+  margin: 0;
   color: var(--muted);
   font-size: 10px;
+  line-height: 1.6;
+}
+
+.offline-note strong {
+  color: var(--ink);
+  font-weight: 700;
 }
 
 .solve-button {
@@ -543,32 +490,9 @@ input::placeholder {
   font-size: 11px;
 }
 
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.loading-state[hidden],
 .solution-state[hidden],
 .error-state[hidden] {
   display: none;
-}
-
-.loading-state p {
-  margin: 0;
-}
-
-.loading-spinner {
-  width: 25px;
-  height: 25px;
-  border: 2px solid #d7ddcf;
-  border-top-color: var(--green);
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
 }
 
 .solution-state {
@@ -671,12 +595,6 @@ input::placeholder {
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
   }
 }
 
